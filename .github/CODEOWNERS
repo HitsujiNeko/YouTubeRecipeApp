@@ -1,0 +1,6 @@
+* @owner
+
+/docs/ @owner
+/.github/ @owner
+/apps/web/app/api/ @owner
+/apps/web/lib/ @owner

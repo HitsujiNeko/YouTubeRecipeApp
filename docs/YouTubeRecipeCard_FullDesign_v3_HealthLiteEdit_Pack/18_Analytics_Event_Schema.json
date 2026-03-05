@@ -1,0 +1,75 @@
+{
+  "version": "0.1.0",
+  "events": [
+    {
+      "name": "import_started",
+      "props": [
+        "video_id",
+        "url_domain"
+      ]
+    },
+    {
+      "name": "import_succeeded",
+      "props": [
+        "recipe_id",
+        "extraction_confidence",
+        "ingredients_count",
+        "steps_count"
+      ]
+    },
+    {
+      "name": "import_failed",
+      "props": [
+        "reason"
+      ]
+    },
+    {
+      "name": "cook_started",
+      "props": [
+        "recipe_id"
+      ]
+    },
+    {
+      "name": "cook_completed",
+      "props": [
+        "recipe_id",
+        "duration_sec"
+      ]
+    },
+    {
+      "name": "nutrition_computed",
+      "props": [
+        "recipe_id",
+        "confidence",
+        "coverage",
+        "unresolved_count"
+      ]
+    },
+    {
+      "name": "nutrition_fix_opened",
+      "props": [
+        "recipe_id",
+        "unresolved_count"
+      ]
+    },
+    {
+      "name": "nutrition_fix_saved",
+      "props": [
+        "recipe_id",
+        "fixed_count"
+      ]
+    },
+    {
+      "name": "share_created",
+      "props": [
+        "recipe_id"
+      ]
+    },
+    {
+      "name": "share_opened",
+      "props": [
+        "public_slug"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,417 @@
+﻿openapi: 3.0.3
+info:
+  title: YouTube Recipe Card API (v3 Health + Nutrition)
+  version: 0.4.0
+servers:
+  - url: https://YOUR_DOMAIN
+
+tags:
+  - name: Recipes
+  - name: Nutrition
+  - name: Foods
+  - name: Share
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    ErrorResponse:
+      type: object
+      required: [error]
+      properties:
+        error:
+          type: object
+          required: [code, message]
+          properties:
+            code:
+              type: string
+              enum:
+                - bad_request
+                - unauthorized
+                - forbidden
+                - not_found
+                - conflict
+                - too_many_requests
+                - upstream_unavailable
+                - internal_error
+            message:
+              type: string
+            request_id:
+              type: string
+            retryable:
+              type: boolean
+            details:
+              type: object
+              additionalProperties: true
+    NutritionTotals:
+      type: object
+      properties:
+        kcal: { type: number }
+        protein_g: { type: number }
+        fat_g: { type: number }
+        carbs_g: { type: number }
+        salt_g: { type: number }
+
+paths:
+  /api/recipes/import:
+    post:
+      tags: [Recipes]
+      summary: Import a YouTube URL and generate recipe card + nutrition estimate (best effort).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [url]
+              properties:
+                url: { type: string }
+                language: { type: string, default: 'ja' }
+                options:
+                  type: object
+                  properties:
+                    allow_ai_infer_steps: { type: boolean, default: false }
+                    compute_nutrition: { type: boolean, default: true }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [recipe_id]
+                properties:
+                  recipe_id: { type: string }
+                  extraction_confidence: { type: number }
+                  nutrition:
+                    type: object
+                    nullable: true
+                    properties:
+                      totals:
+                        $ref: '#/components/schemas/NutritionTotals'
+                      confidence: { type: number }
+                      coverage: { type: number }
+                      unresolved:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            ingredient_id: { type: string }
+                            name: { type: string }
+                            reason: { type: string }
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '429':
+          description: Upstream quota exceeded or rate limited
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '503':
+          description: Temporary upstream failure (YouTube/LLM)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /api/recipes/{id}:
+    get:
+      tags: [Recipes]
+      summary: Get recipe card + nutrition cache.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: header
+          name: X-Recipe-Edit-Token
+          required: false
+          schema: { type: string }
+          description: Required for anonymous-owner private recipes.
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Missing auth context for private recipe
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '403':
+          description: Authenticated but not allowed to access recipe
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Recipe not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+    patch:
+      tags: [Recipes]
+      summary: Update recipe (title/notes/ingredients/steps).
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: header
+          name: X-Recipe-Edit-Token
+          required: false
+          schema: { type: string }
+          description: Required for anonymous-owner private recipes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                notes: { type: string }
+                servings_text: { type: string }
+                ingredients:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      position: { type: integer }
+                      group_label: { type: string }
+                      name: { type: string }
+                      quantity_text: { type: string }
+                      is_optional: { type: boolean }
+                steps:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      id: { type: string }
+                      position: { type: integer }
+                      text: { type: string }
+                      timer_sec: { type: integer }
+                      timestamp_sec: { type: integer }
+                      is_ai_inferred: { type: boolean }
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Missing auth context for private recipe
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '403':
+          description: Not recipe owner
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Recipe not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '409':
+          description: Version conflict (optimistic update)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /api/recipes/{id}/nutrition:
+    post:
+      tags: [Nutrition]
+      summary: Compute (or recompute) nutrition estimates for a recipe.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: header
+          name: X-Recipe-Edit-Token
+          required: false
+          schema: { type: string }
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                allow_best_effort: { type: boolean, default: true }
+      responses:
+        '200':
+          description: OK
+        '401':
+          description: Missing auth context for private recipe
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '403':
+          description: Not recipe owner
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Recipe not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '429':
+          description: Rate limited by upstream provider
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '503':
+          description: Temporary upstream failure (nutrition mapping provider)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /api/ingredients/{ingredient_id}/match:
+    patch:
+      tags: [Nutrition]
+      summary: Override ingredient -> food match and grams (for quick fixes).
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: ingredient_id
+          required: true
+          schema: { type: string }
+        - in: header
+          name: X-Recipe-Edit-Token
+          required: false
+          schema: { type: string }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                matched_food_id: { type: integer }
+                grams: { type: number }
+                match_method: { type: string, default: 'manual' }
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid payload
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '401':
+          description: Missing auth context for private recipe
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '403':
+          description: Not recipe owner
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Ingredient not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /api/foods/search:
+    get:
+      tags: [Foods]
+      summary: Search food items for manual matching UI.
+      parameters:
+        - in: query
+          name: q
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid query
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '429':
+          description: Rate limited
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+
+  /api/recipes/{id}/share:
+    post:
+      tags: [Share]
+      summary: Create or rotate public share slug.
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: string }
+        - in: header
+          name: X-Recipe-Edit-Token
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [public_slug]
+                properties:
+                  public_slug: { type: string }
+                  share_enabled_at: { type: string, format: date-time }
+                  share_slug_rotated_at: { type: string, format: date-time }
+        '401':
+          description: Missing auth context for private recipe
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '403':
+          description: Not recipe owner
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '404':
+          description: Recipe not found
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }
+        '409':
+          description: Slug collision, retryable
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/ErrorResponse' }

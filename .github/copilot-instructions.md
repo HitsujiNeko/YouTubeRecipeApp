@@ -1,0 +1,54 @@
+# YouTube Recipe Card - Copilot 指示
+
+## プロダクト範囲
+- `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack` に定義されたMVPを実装する。
+- `04_PRD_MVP_v3.md` の非ゴールを守る。
+
+## ドキュメント参照優先順位
+- 全体設計の正本は `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack` とする。
+- AI実装時の運用・実装手順・詳細画面仕様は `docs/AI_Development` を優先参照する。
+- 仕様差分がある場合は、実装前にドキュメント間の不整合を解消する。
+
+## Skill運用
+- `SKILL.md` は自動選択される前提で運用する。
+- ただし確実に適用したい場合は、タスク指示内にスキル名（例: `backend-integration`）を明示する。
+- 各 `SKILL.md` の `description` は日本語 + 英語キーワード併記とし、発火精度を高める。
+
+## 自走モード運用
+- ユーザーが「続けて」「次を進めて」と指示した場合、
+	`docs/AI_Development/01_Product_Backlog/02_Task_Queue.md` の先頭 `todo` を自動選択して着手する。
+- 実装完了後はキューのstatusを `done` に更新し、次の `todo` を提案する。
+- ブロック時のみ `blocked` と理由を記録し、必要最小限の確認質問を行う。
+
+## 事前チェック（実装前）
+- 対象画面の詳細仕様が `docs/AI_Development/03_UX_Detail` に存在しない場合、先にUX詳細設計を追加する。
+- 画面遷移、状態、エラー時UI、主要コンポーネントが定義されるまで本実装を開始しない。
+
+## 技術スタック
+- Frontend/Backend: Next.js App Router + Route Handlers
+- DB/Auth: Supabase Postgres
+- LLM: OpenAI API
+- Deploy: Vercel + Supabase
+
+## 実装ルール
+- 変更は小さく保つ（1 PR = 1 機能）。
+- LLM出力は永続化前に必ずZodで検証する。
+- 栄養値を断定値として返さない。常に `confidence` / `coverage` を含める。
+- APIエラーは `20_API_Error_Contract_v1.md` の契約に従う。
+- OpenAPI（`08_OpenAPI_v3.yaml`）とRoute Handler実装を同期する。
+
+## セキュリティルール
+- YouTubeの動画/音声をダウンロード・保存しない。
+- YouTube APIのメタデータと埋め込みリンクのみを利用する。
+- 更新系APIは owner認可（JWT）または匿名edit tokenで制御する。
+- service role keyをクライアントへ公開しない。
+
+## テストルール
+- パーサと栄養ロジックのユニットテストを追加/更新する。
+- 主要ハッピーパスと失敗時UXをE2Eで担保する。
+
+## 完了条件
+- 挙動変更時に要件ドキュメントを更新している。
+- lint/typecheckが通る。
+- 関連テストが通る。
+- APIレスポンス形状がOpenAPIと一致する。
