@@ -18,3 +18,6 @@
 - `03_UX_Detail`: 画面詳細、状態、バリデーション、文言
 - `04_Implementation_Standards`: API実装テンプレ、命名、品質規約
 - `05_Operations_and_Quality`: NFR/SLO、運用Runbook、CI品質基準
+
+## 実装規約（参照先）
+- コーディング規約: `docs/AI_Development/04_Implementation_Standards/03_Coding_Standards.md`

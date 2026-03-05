@@ -38,6 +38,7 @@
 - [ ] 必須更新ファイルをすべて更新した
 - [ ] 未更新がある場合は理由を本文に記載した
 - [ ] PR本文の事実整合レビュー（過大表現チェック）を実施し、`実装済み` / `検証済み` / `未実施` を区別して記載した
+- [ ] `docs/AI_Development/04_Implementation_Standards/03_Coding_Standards.md` に照らして規約遵守セルフレビューを実施した
 
 ## Task Queue連携
 - [ ] 対応したTask IDを記載した

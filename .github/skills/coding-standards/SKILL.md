@@ -10,6 +10,7 @@ description: "コーディング規約適用時に使用 / Use when generating o
 - ファイルの責務を小さく保つ。
 - 抽出/栄養の中核ロジックは純関数を優先する。
 - コメントは非自明な箇所に限定する。
+- 詳細規約は `docs/AI_Development/04_Implementation_Standards/03_Coding_Standards.md` を参照する。
 
 ## セキュリティ基準
 - ユーザー入力を信頼せず、検証・サニタイズを行う。
