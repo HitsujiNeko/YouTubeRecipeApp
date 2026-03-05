@@ -1,17 +1,21 @@
 "use client";
 
+import type { FormEvent } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { FormEvent, useState } from "react";
-import { parseYouTubeVideoId } from "@/lib/youtube/parseYouTubeVideoId";
 import { ApiErrorPanel } from "@/components/ApiErrorPanel";
 import { mapImportApiError, type ImportUiError } from "@/lib/home/importError";
+import { parseYouTubeVideoId } from "@/lib/youtube/parseYouTubeVideoId";
+import type { ImportRecipeRequest, ImportRecipeResponse } from "@/types/api";
 
 type ImportState = "idle" | "validating" | "importing" | "success" | "error";
 
-type ImportSuccessResponse = {
-  recipe_id: string;
-  extraction_confidence: number;
-  nutrition: unknown;
+const DEFAULT_IMPORT_REQUEST: Omit<ImportRecipeRequest, "url"> = {
+  language: "ja",
+  options: {
+    allow_ai_infer_steps: false,
+    compute_nutrition: true,
+  },
 };
 
 export function YouTubeUrlForm() {
@@ -30,13 +34,9 @@ export function YouTubeUrlForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          ...DEFAULT_IMPORT_REQUEST,
           url: targetUrl,
-          language: "ja",
-          options: {
-            allow_ai_infer_steps: false,
-            compute_nutrition: true,
-          },
-        }),
+        } satisfies ImportRecipeRequest),
       });
 
       if (!response.ok) {
@@ -47,7 +47,7 @@ export function YouTubeUrlForm() {
         return;
       }
 
-      const body = (await response.json()) as ImportSuccessResponse;
+      const body = (await response.json()) as ImportRecipeResponse;
       setState("success");
       router.push(`/recipes/${body.recipe_id}`);
     } catch {

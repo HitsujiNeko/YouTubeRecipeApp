@@ -1,5 +1,7 @@
+import type { ImportErrorCode } from "@/types/api";
+
 type ApiErrorPanelProps = {
-  code: string;
+  code: ImportErrorCode;
   message: string;
   retryable: boolean;
   onRetry: () => void;

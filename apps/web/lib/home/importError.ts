@@ -1,18 +1,4 @@
-export type ImportErrorCode =
-  | "bad_request"
-  | "too_many_requests"
-  | "upstream_unavailable"
-  | "internal_error";
-
-export type ImportApiError = {
-  error: {
-    code: ImportErrorCode;
-    message: string;
-    request_id: string;
-    retryable: boolean;
-    details?: Record<string, unknown>;
-  };
-};
+import type { ImportErrorCode } from "@/types/api";
 
 export type ImportUiError = {
   code: ImportErrorCode;
