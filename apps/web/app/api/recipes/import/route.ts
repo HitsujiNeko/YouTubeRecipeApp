@@ -16,11 +16,7 @@ const importRequestSchema = z.object({
     .optional(),
 });
 
-type ErrorCode =
-  | "bad_request"
-  | "too_many_requests"
-  | "upstream_unavailable"
-  | "internal_error";
+type ErrorCode = "bad_request" | "too_many_requests" | "upstream_unavailable" | "internal_error";
 
 function errorResponse(params: {
   status: number;

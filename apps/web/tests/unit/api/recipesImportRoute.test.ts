@@ -95,7 +95,9 @@ describe("POST /api/recipes/import", () => {
     const mockSupabase = createMockSupabase({});
     createSupabaseServiceClientMock.mockReturnValue(mockSupabase);
 
-    const response = await POST(createRequest({ url: "https://www.youtube.com/watch?v=WLfTFCKqANA" }) as never);
+    const response = await POST(
+      createRequest({ url: "https://www.youtube.com/watch?v=WLfTFCKqANA" }) as never,
+    );
     const body = await response.json();
 
     expect(response.status).toBe(200);
@@ -123,7 +125,9 @@ describe("POST /api/recipes/import", () => {
       new YouTubeUpstreamError("YouTube API quota exceeded", 429, true),
     );
 
-    const response = await POST(createRequest({ url: "https://www.youtube.com/watch?v=WLfTFCKqANA" }) as never);
+    const response = await POST(
+      createRequest({ url: "https://www.youtube.com/watch?v=WLfTFCKqANA" }) as never,
+    );
     const body = await response.json();
 
     expect(response.status).toBe(429);
@@ -137,7 +141,9 @@ describe("POST /api/recipes/import", () => {
       new YouTubeUpstreamError("YouTube API timeout", 503, true),
     );
 
-    const response = await POST(createRequest({ url: "https://www.youtube.com/watch?v=WLfTFCKqANA" }) as never);
+    const response = await POST(
+      createRequest({ url: "https://www.youtube.com/watch?v=WLfTFCKqANA" }) as never,
+    );
     const body = await response.json();
 
     expect(response.status).toBe(503);

@@ -93,10 +93,19 @@ function pickThumbnailUrl(thumbnails: YouTubeThumbnails | undefined): string | n
     return null;
   }
 
-  return thumbnails.maxres?.url ?? thumbnails.high?.url ?? thumbnails.medium?.url ?? thumbnails.default?.url ?? null;
+  return (
+    thumbnails.maxres?.url ??
+    thumbnails.high?.url ??
+    thumbnails.medium?.url ??
+    thumbnails.default?.url ??
+    null
+  );
 }
 
-function toMetadata(videoId: string, payload: z.infer<typeof youtubeResponseSchema>): YouTubeVideoMetadata {
+function toMetadata(
+  videoId: string,
+  payload: z.infer<typeof youtubeResponseSchema>,
+): YouTubeVideoMetadata {
   const firstItem = payload.items[0];
   const snippet = firstItem?.snippet;
 
@@ -118,7 +127,12 @@ function jitterDelay(baseDelayMs: number, randomFn: () => number): number {
   return baseDelayMs + Math.floor(randomFn() * (jitterRangeMs + 1));
 }
 
-async function fetchWithTimeout(input: URL, init: RequestInit, timeoutMs: number, fetchFn: typeof fetch): Promise<Response> {
+async function fetchWithTimeout(
+  input: URL,
+  init: RequestInit,
+  timeoutMs: number,
+  fetchFn: typeof fetch,
+): Promise<Response> {
   const controller = new AbortController();
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -144,7 +158,9 @@ export async function fetchYouTubeMetadata(
   const timeoutMs = options.timeoutMs ?? DEFAULT_TIMEOUT_MS;
   const retryDelaysMs = options.retryDelaysMs ?? [...DEFAULT_RETRY_DELAYS_MS];
   const fetchFn = options.fetchFn ?? fetch;
-  const sleepFn = options.sleepFn ?? ((milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds)));
+  const sleepFn =
+    options.sleepFn ??
+    ((milliseconds: number) => new Promise((resolve) => setTimeout(resolve, milliseconds)));
   const randomFn = options.randomFn ?? Math.random;
   const apiKey = options.apiKey ?? getServerEnv().YOUTUBE_DATA_API_KEY;
 
@@ -155,7 +171,12 @@ export async function fetchYouTubeMetadata(
 
   for (let attempt = 0; attempt <= retryDelaysMs.length; attempt += 1) {
     try {
-      const response = await fetchWithTimeout(url, { method: "GET", headers: { Accept: "application/json" } }, timeoutMs, fetchFn);
+      const response = await fetchWithTimeout(
+        url,
+        { method: "GET", headers: { Accept: "application/json" } },
+        timeoutMs,
+        fetchFn,
+      );
 
       if (!response.ok) {
         if (isRetryableHttpStatus(response.status)) {
