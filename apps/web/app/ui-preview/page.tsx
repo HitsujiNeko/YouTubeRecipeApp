@@ -38,7 +38,8 @@ export default function UiPreviewPage() {
       <div className="mx-auto max-w-7xl">
         <h1 className="text-3xl font-bold tracking-tight">UI Preview (MVP)</h1>
         <p className="mt-2 text-sm text-slate-600">
-          実装前に完成イメージを確認するための静的プレビューです。Home / RecipeDetail / NutritionFix / CookMode を並べて比較できます。
+          実装前に完成イメージを確認するための静的プレビューです。Home / RecipeDetail / NutritionFix
+          / CookMode を並べて比較できます。
         </p>
 
         <div className="mt-6 flex gap-5 overflow-x-auto pb-2">
@@ -55,8 +56,12 @@ export default function UiPreviewPage() {
               </button>
               <p className="text-xs text-slate-500">最近のレシピ</p>
               <ul className="space-y-2 text-sm">
-                <li className="rounded-md border border-slate-200 bg-white px-3 py-2">高たんぱく鶏むねソテー</li>
-                <li className="rounded-md border border-slate-200 bg-white px-3 py-2">豆腐チキンナゲット</li>
+                <li className="rounded-md border border-slate-200 bg-white px-3 py-2">
+                  高たんぱく鶏むねソテー
+                </li>
+                <li className="rounded-md border border-slate-200 bg-white px-3 py-2">
+                  豆腐チキンナゲット
+                </li>
               </ul>
             </div>
           </PhoneFrame>
@@ -116,7 +121,11 @@ export default function UiPreviewPage() {
               </div>
               <div>
                 <p className="mb-1 text-xs text-slate-500">使用量(g)</p>
-                <input className="w-full rounded-md border border-slate-300 px-3 py-2" defaultValue="8" readOnly />
+                <input
+                  className="w-full rounded-md border border-slate-300 px-3 py-2"
+                  defaultValue="8"
+                  readOnly
+                />
               </div>
               <button className="w-full rounded-lg bg-orange-600 py-2 text-xs font-semibold text-white">
                 保存して再計算
@@ -132,8 +141,12 @@ export default function UiPreviewPage() {
               </div>
 
               <div className="flex gap-2">
-                <button className="flex-1 rounded-md border border-slate-300 py-2 text-xs font-semibold">戻る</button>
-                <button className="flex-1 rounded-md bg-slate-900 py-2 text-xs font-semibold text-white">次へ</button>
+                <button className="flex-1 rounded-md border border-slate-300 py-2 text-xs font-semibold">
+                  戻る
+                </button>
+                <button className="flex-1 rounded-md bg-slate-900 py-2 text-xs font-semibold text-white">
+                  次へ
+                </button>
               </div>
 
               <div className="rounded-lg border border-slate-200 bg-white p-3">
