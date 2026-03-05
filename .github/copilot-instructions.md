@@ -37,6 +37,15 @@
 - APIエラーは `20_API_Error_Contract_v1.md` の契約に従う。
 - OpenAPI（`08_OpenAPI_v3.yaml`）とRoute Handler実装を同期する。
 
+### PR作成ルール
+- PR作成時は必ず `.github/pull_request_template.md` の形式を厳守し、全項目を埋めて提出すること。
+- テンプレートに沿わないPRは差し戻し対象とする。
+
+### フォーマットチェック対策
+- PR作成・push前に必ず `npm run format` を実行し、Prettierで全ファイルを自動整形すること。
+- CIで `format:check` がfailした場合は、`npm run format` → 再コミット・再pushで必ず修正すること。
+- VSCode利用者は「保存時に自動整形」拡張の利用を推奨。
+
 ## セキュリティルール
 - YouTubeの動画/音声をダウンロード・保存しない。
 - YouTube APIのメタデータと埋め込みリンクのみを利用する。
