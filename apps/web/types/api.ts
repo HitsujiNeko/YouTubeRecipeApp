@@ -91,3 +91,9 @@ export type IngredientMatchResponse = {
   grams: number;
   match_method: "manual" | "dict" | "trgm";
 };
+
+export type RecipeShareResponse = {
+  public_slug: string;
+  share_enabled_at: string;
+  share_slug_rotated_at: string;
+};
