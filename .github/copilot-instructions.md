@@ -44,7 +44,6 @@
 - PR提出前に、`03_Coding_Standards.md` 準拠のセルフレビューを実施し、逸脱がある場合は理由とフォローアップをPR本文に記載すること。
 
 ### フォーマットチェック対策
-- PR作成・push前に必ず `npm run format` を実行し、Prettierで全ファイルを自動整形すること。
 - CIで `format:check` がfailした場合は、`npm run format` → 再コミット・再pushで必ず修正すること。
 - VSCode利用者は「保存時に自動整形」拡張の利用を推奨。
 
