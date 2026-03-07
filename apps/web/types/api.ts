@@ -67,3 +67,27 @@ export type ComputeRecipeNutritionResponse = {
 };
 
 export type CommonApiErrorResponse = ApiErrorResponse<CommonErrorCode>;
+
+export type FoodSearchCandidate = {
+  food_id: number;
+  name_ja: string;
+  category: string | null;
+  score: number;
+};
+
+export type FoodSearchResponse = {
+  items: FoodSearchCandidate[];
+};
+
+export type IngredientMatchRequest = {
+  matched_food_id: number;
+  grams: number;
+  match_method?: "manual" | "dict" | "trgm";
+};
+
+export type IngredientMatchResponse = {
+  ingredient_id: string;
+  matched_food_id: number;
+  grams: number;
+  match_method: "manual" | "dict" | "trgm";
+};
