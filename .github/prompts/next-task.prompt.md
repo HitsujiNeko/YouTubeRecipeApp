@@ -11,4 +11,4 @@ description: "キューから次タスクを自動実行 / Pick and execute the 
 - 適切なSkillを自動選択
 - OpenAPI/DB/UXとの整合を確認
 - 実装後にキュー更新
-- 実行結果を簡潔に報告
+- 実行結果を報告
