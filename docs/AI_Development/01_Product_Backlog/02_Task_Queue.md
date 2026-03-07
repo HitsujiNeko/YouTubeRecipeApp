@@ -25,4 +25,4 @@
 | Q-007 | ui | NutritionFix 画面実装 | done | 候補選択 + g入力 + 保存 + 低confidence理由表示 | `03_UX_Detail/01_MVP_Screen_Spec.md`, `17_UI_Copy_Disclaimer.md` |
 | Q-008 | share | POST /api/recipes/{id}/share 実装 | done | slug作成/rotate | `08_OpenAPI_v3.yaml`, `19_Auth_Authorization_RLS_v1.md` |
 | Q-009 | ui | SharePage 実装 | done | 元動画埋め込み + クレジット表示 + レシピカード再利用 | `03_UX_Detail/01_MVP_Screen_Spec.md`, `13_Legal_Compliance_v3.md` |
-| Q-010 | test | import->detail->cook E2E追加 | todo | Playwrightで主要導線が通る | `11_Test_Plan_v3.md` |
+| Q-010 | test | import->detail->cook E2E追加 | done | Playwrightで主要導線が通る | `11_Test_Plan_v3.md` |
