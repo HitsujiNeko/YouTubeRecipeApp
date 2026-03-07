@@ -270,6 +270,27 @@ paths:
       responses:
         '200':
           description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [totals, confidence, coverage, unresolved]
+                properties:
+                  totals:
+                    $ref: '#/components/schemas/NutritionTotals'
+                  confidence:
+                    type: number
+                  coverage:
+                    type: number
+                  unresolved:
+                    type: array
+                    items:
+                      type: object
+                      required: [ingredient_id, name, reason]
+                      properties:
+                        ingredient_id: { type: string }
+                        name: { type: string }
+                        reason: { type: string }
         '401':
           description: Missing auth context for private recipe
           content:

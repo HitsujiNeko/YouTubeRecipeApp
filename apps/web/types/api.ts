@@ -4,6 +4,16 @@ export type ImportErrorCode =
   | "upstream_unavailable"
   | "internal_error";
 
+export type CommonErrorCode =
+  | "bad_request"
+  | "unauthorized"
+  | "forbidden"
+  | "not_found"
+  | "conflict"
+  | "too_many_requests"
+  | "upstream_unavailable"
+  | "internal_error";
+
 export type ApiErrorResponse<TCode extends string = string> = {
   error: {
     code: TCode;
@@ -30,3 +40,30 @@ export type ImportRecipeResponse = {
 };
 
 export type ImportApiErrorResponse = ApiErrorResponse<ImportErrorCode>;
+
+export type NutritionTotalsResponse = {
+  kcal: number;
+  protein_g: number;
+  fat_g: number;
+  carbs_g: number;
+  salt_g: number;
+};
+
+export type UnresolvedIngredient = {
+  ingredient_id: string;
+  name: string;
+  reason: string;
+};
+
+export type ComputeRecipeNutritionRequest = {
+  allow_best_effort?: boolean;
+};
+
+export type ComputeRecipeNutritionResponse = {
+  totals: NutritionTotalsResponse;
+  confidence: number;
+  coverage: number;
+  unresolved: UnresolvedIngredient[];
+};
+
+export type CommonApiErrorResponse = ApiErrorResponse<CommonErrorCode>;
