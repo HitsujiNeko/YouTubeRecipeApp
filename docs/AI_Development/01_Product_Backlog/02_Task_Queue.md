@@ -26,3 +26,7 @@
 | Q-008 | share | POST /api/recipes/{id}/share 実装 | done | slug作成/rotate | `08_OpenAPI_v3.yaml`, `19_Auth_Authorization_RLS_v1.md` |
 | Q-009 | ui | SharePage 実装 | done | 元動画埋め込み + クレジット表示 + レシピカード再利用 | `03_UX_Detail/01_MVP_Screen_Spec.md`, `13_Legal_Compliance_v3.md` |
 | Q-010 | test | import->detail->cook E2E追加 | done | Playwrightで主要導線が通る | `11_Test_Plan_v3.md` |
+| Q-011 | api/ui | RecipeDetailの実データ表示導線を完成 | done | URL import後にDB保存された材料/手順がRecipeDetailに表示される | `08_OpenAPI_v3.yaml`, `07_DB_Schema_v3.sql`, `03_UX_Detail/01_MVP_Screen_Spec.md` |
+| Q-012 | design | 食材/手順抽出ロジック詳細設計 | done | rule/LLM fallback/検証/テスト戦略まで定義される | `04_Implementation_Standards/04_Extraction_Logic_Design.md`, `09_Extraction_and_Nutrition_Pipeline_v3.md` |
+| Q-013 | import | 抽出ロジック再実装（設計準拠） | todo | 設計書に沿ってimportで材料/手順抽出品質を改善 | `04_Implementation_Standards/04_Extraction_Logic_Design.md`, `08_OpenAPI_v3.yaml`, `07_DB_Schema_v3.sql` |
+| Q-014 | ui | CookModeの実データ表示対応 | blocked | Q-013完了後に着手（抽出品質確定前はUI検証不可） | `03_UX_Detail/01_MVP_Screen_Spec.md` |

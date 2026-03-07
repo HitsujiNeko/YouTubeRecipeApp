@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { IngredientList } from "@/components/IngredientList";
 import { NutritionSummaryCard } from "@/components/NutritionSummaryCard";
 import { StepList } from "@/components/StepList";
+import { getRecipeDetailById } from "@/lib/recipes/getRecipeDetailById";
 import { getMockRecipeDetail } from "@/lib/recipes/mockRecipeDetail";
 
 type RecipeDetailPageProps = {
@@ -11,7 +13,12 @@ type RecipeDetailPageProps = {
 
 export default async function RecipeDetailPage({ params }: RecipeDetailPageProps) {
   const { id } = await params;
-  const recipe = getMockRecipeDetail(id);
+  const recipe =
+    (await getRecipeDetailById(id)) ?? (id.startsWith("sample-") ? getMockRecipeDetail(id) : null);
+
+  if (!recipe) {
+    notFound();
+  }
 
   return (
     <main className="min-h-screen bg-slate-100 text-slate-900">

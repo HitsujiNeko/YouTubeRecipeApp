@@ -35,3 +35,10 @@
   - food候補上位3を提示
   - 量（g）を入力
 - 入力が難しい材料（例: 1個/1枚）は「推定テンプレ」を用意（P1）
+
+## 9.5 抽出ロジック詳細設計（AI開発運用）
+- 実装に先立つ詳細仕様は `docs/AI_Development/04_Implementation_Standards/04_Extraction_Logic_Design.md` を正とする。
+- 方針:
+  - rule-based抽出を第一経路にする
+  - 低品質ケースのみLLMフォールバック
+  - 出力は必ずZodで検証してから永続化する
