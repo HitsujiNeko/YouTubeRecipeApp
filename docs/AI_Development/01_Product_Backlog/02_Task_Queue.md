@@ -22,7 +22,7 @@
 | Q-004 | ui | Home 画面のimport導線実装 | done | 入力/エラー/loading状態あり + レシピカード基盤 | `03_UX_Detail/01_MVP_Screen_Spec.md`, `03_UX_Detail/05_Component_Spec.md` |
 | Q-005 | ui | RecipeDetail 栄養カード実装 | done | confidence/coverage/unresolved表示 + CookMode導線 + サムネイル | `03_UX_Detail/01_MVP_Screen_Spec.md`, `17_UI_Copy_Disclaimer.md` |
 | Q-006 | nutrition | POST /api/recipes/{id}/nutrition 実装 | done | cache更新とunresolved返却 | `08_OpenAPI_v3.yaml`, `20_API_Error_Contract_v1.md` |
-| Q-007 | ui | NutritionFix 画面実装 | todo | 候補選択 + g入力 + 保存 + 低confidence理由表示 | `03_UX_Detail/01_MVP_Screen_Spec.md`, `17_UI_Copy_Disclaimer.md` |
+| Q-007 | ui | NutritionFix 画面実装 | done | 候補選択 + g入力 + 保存 + 低confidence理由表示 | `03_UX_Detail/01_MVP_Screen_Spec.md`, `17_UI_Copy_Disclaimer.md` |
 | Q-008 | share | POST /api/recipes/{id}/share 実装 | todo | slug作成/rotate | `08_OpenAPI_v3.yaml`, `19_Auth_Authorization_RLS_v1.md` |
 | Q-009 | ui | SharePage 実装 | todo | 元動画埋め込み + クレジット表示 + レシピカード再利用 | `03_UX_Detail/01_MVP_Screen_Spec.md`, `13_Legal_Compliance_v3.md` |
 | Q-010 | test | import->detail->cook E2E追加 | todo | Playwrightで主要導線が通る | `11_Test_Plan_v3.md` |
