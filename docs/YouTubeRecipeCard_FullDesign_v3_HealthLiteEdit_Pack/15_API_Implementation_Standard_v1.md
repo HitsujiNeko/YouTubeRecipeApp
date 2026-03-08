@@ -1,20 +1,20 @@
-# 23 API実装規約 v1
+﻿# 15 API実装規約 v1
 
 作成日: 2026-03-05
 
-## 23.1 目的
+## 15.1 目的
 - Route Handler実装のゆらぎをなくし、AIでも一貫したAPI品質を維持する。
 
-## 23.2 対象
+## 15.2 対象
 - `apps/web/app/api/**/route.ts`
 
-## 23.3 必須原則
+## 15.3 必須原則
 - 入力検証はZodを必須化し、失敗時は `bad_request` を返す。
-- エラー形式は `20_API_Error_Contract_v1.md` に統一する。
+- エラー形式は `13_API_Error_Contract_v1.md` に統一する。
 - 更新系は認可を必須化（JWT owner または匿名edit token）。
 - 外部API連携には timeout/retry を設定する。
 
-## 23.4 標準レスポンス
+## 15.4 標準レスポンス
 - 成功: `NextResponse.json(payload, { status: 200 })`
 - 失敗: 共通エラーJSON
 
@@ -30,7 +30,7 @@
 }
 ```
 
-## 23.5 Route Handlerテンプレ
+## 15.5 Route Handlerテンプレ
 ```ts
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
@@ -82,14 +82,14 @@ export async function POST(req: NextRequest) {
 }
 ```
 
-## 23.6 認可判定手順（必須）
+## 15.6 認可判定手順（必須）
 1. `Authorization: Bearer` のJWTを確認。
 2. JWTが有効なら `owner_user_id == auth.uid()` を確認。
 3. JWTがない場合は `X-Recipe-Edit-Token` を検証。
 4. 共有公開readのみ `public_slug` ベースで許可。
 5. 失敗時は `401` または `403` を返す。
 
-## 23.7 エラー生成ルール
+## 15.7 エラー生成ルール
 - 400: Zod検証失敗、パラメータ不正
 - 401: 認証情報不足
 - 403: 認可NG
@@ -99,10 +99,13 @@ export async function POST(req: NextRequest) {
 - 503: 外部依存障害
 - 500: 予期しない障害
 
-## 23.8 再試行ルール
+## 15.8 再試行ルール
 - `retryable=true`: 429, 503, 一部409
 - `retryable=false`: 400, 401, 403, 404, 500
 
-## 23.9 ログ要件
+## 15.9 ログ要件
 - 全リクエストで `request_id` を採番。
 - エラーログには `code`, `message`, `request_id`, `actor_type` を含める。
+
+
+

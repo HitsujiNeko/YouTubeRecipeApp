@@ -1,4 +1,4 @@
-# 03 MVP Completion Checklist
+﻿# 03 MVP Completion Checklist
 
 更新日: 2026-03-07
 対象ブランチ: `main`
@@ -9,7 +9,7 @@
 
 参照:
 - `docs/AI_Development/01_Product_Backlog/02_Task_Queue.md`
-- `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/04_PRD_MVP_v3.md`
+- `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/01_Product_and_PRD_Handbook_v3.md`
 
 ## 2. Final Quality Gates (main)
 実行ディレクトリ: `apps/web`
@@ -44,3 +44,4 @@
   - 代表動画成功率の改善（>=70%）
   - confidence>=0.55割合の計測可能状態回復と目標到達（>=50%）
   - モバイル実機確認ログの追記
+

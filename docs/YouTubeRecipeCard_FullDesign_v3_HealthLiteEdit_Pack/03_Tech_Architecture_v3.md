@@ -1,4 +1,4 @@
-# 06 技術アーキテクチャ v3（抽出 + 栄養推定）
+﻿# 03 技術アーキテクチャ v3（抽出 + 栄養推定）
 
 ## 6.1 全体構成
 - Next.js App Router（UI）
@@ -44,3 +44,5 @@
 - POST /api/recipes/{id}/nutrition （再計算）
 - PATCH /api/ingredients/{ingredient_id}/match（候補選択/g保存）
 - GET /api/foods/search?q=...（手動マッチング候補）
+
+

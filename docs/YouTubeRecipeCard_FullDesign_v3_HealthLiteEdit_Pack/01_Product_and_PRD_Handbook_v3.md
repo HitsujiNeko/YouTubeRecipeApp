@@ -1,4 +1,4 @@
-# 01 Product and PRD Handbook v3
+﻿# 01 Product and PRD Handbook v3
 
 作成日: 2026-03-08
 目的: Product戦略からMVP要件までを1冊に統合し、AI実装時の参照往復を減らす。
@@ -30,16 +30,7 @@
 - DoD
 
 ## 7. Reference Contracts
-- UX: `05_UX_Spec_v3.md`
-- DB: `07_DB_Schema_v3.sql`
-- API: `08_OpenAPI_v3.yaml`
+- UX: `02_UX_Spec_v3.md`
+- DB: `04_DB_Schema_v3.sql`
+- API: `05_OpenAPI_v3.yaml`
 
-## 8. Migration Notes
-統合元:
-- `00_Project_Overview_v3.md`
-- `01_Market_Research_v3.md`
-- `02_Personas_JTBD_v3.md`
-- `03_Problem_Solution_Priority_v3.md`
-- `04_PRD_MVP_v3.md`
-
-上記文書は移行案内のみを1リリース保持し、次リリースで削除する。

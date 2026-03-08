@@ -1,4 +1,4 @@
-# 01 Execution Hub
+﻿# 01 Execution Hub
 
 更新日: 2026-03-08
 目的: 実装時に最短で参照すべきドキュメントを1枚で示す。
@@ -18,13 +18,13 @@
 
 ## 1. レイヤー定義（迷わないための役割分離）
 - Strategy（戦略）:
-  - `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/15_Roadmap_Backlog_v3.md`
+  - `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/09_Roadmap_Backlog_v3.md`
 - Execution（実行順）:
   - `docs/AI_Development/01_Product_Backlog/02_Task_Queue.md`
 - Contract（仕様契約）:
-  - OpenAPI: `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/08_OpenAPI_v3.yaml`
-  - DB: `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/07_DB_Schema_v3.sql`
-  - Error: `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/20_API_Error_Contract_v1.md`
+  - OpenAPI: `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/05_OpenAPI_v3.yaml`
+  - DB: `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/04_DB_Schema_v3.sql`
+  - Error: `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/13_API_Error_Contract_v1.md`
 - UX Detail（画面詳細）:
   - `docs/AI_Development/03_UX_Detail/01_MVP_Screen_Spec.md`
 
@@ -47,3 +47,4 @@
   - Queue
   - Delivery Plan
   - Sync Matrix
+

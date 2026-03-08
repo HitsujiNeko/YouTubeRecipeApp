@@ -1,8 +1,8 @@
-# YouTube Recipe Card - Copilot 指示
+﻿# YouTube Recipe Card - Copilot 指示
 
 ## プロダクト範囲
 - `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack` に定義されたMVPを実装する。
-- `04_PRD_MVP_v3.md` の非ゴールを守る。
+- `01_Product_and_PRD_Handbook_v3.md` の非ゴールを守る。
 
 ## ドキュメント参照優先順位
 - 全体設計の正本は `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack` とする。
@@ -34,8 +34,8 @@
 - 変更は小さく保つ（1 PR = 1 機能）。
 - LLM出力は永続化前に必ずZodで検証する。
 - 栄養値を断定値として返さない。常に `confidence` / `coverage` を含める。
-- APIエラーは `20_API_Error_Contract_v1.md` の契約に従う。
-- OpenAPI（`08_OpenAPI_v3.yaml`）とRoute Handler実装を同期する。
+- APIエラーは `13_API_Error_Contract_v1.md` の契約に従う。
+- OpenAPI（`05_OpenAPI_v3.yaml`）とRoute Handler実装を同期する。
 
 ### PR作成ルール
 - PR作成時は必ず `.github/pull_request_template.md` の形式を厳守し、全項目を埋めて提出すること。
@@ -62,3 +62,4 @@
 - lint/typecheckが通る。
 - 関連テストが通る。
 - APIレスポンス形状がOpenAPIと一致する。
+

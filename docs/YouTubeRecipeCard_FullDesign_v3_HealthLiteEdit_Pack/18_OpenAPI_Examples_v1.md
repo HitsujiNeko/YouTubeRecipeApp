@@ -1,11 +1,11 @@
-# 28 OpenAPI実例集 v1
+﻿# 18 OpenAPI実例集 v1
 
 作成日: 2026-03-05
 
-## 28.1 目的
+## 18.1 目的
 - フロント実装者向けに成功/失敗レスポンスの実例を提供する。
 
-## 28.2 `POST /api/recipes/import` 成功例
+## 18.2 `POST /api/recipes/import` 成功例
 ```json
 {
   "recipe_id": "0f4f31f5-87bd-4c90-b4dd-8d4e48c7e0fe",
@@ -31,7 +31,7 @@
 }
 ```
 
-## 28.3 `POST /api/recipes/import` 失敗例（429）
+## 18.3 `POST /api/recipes/import` 失敗例（429）
 ```json
 {
   "error": {
@@ -46,7 +46,7 @@
 }
 ```
 
-## 28.4 `PATCH /api/recipes/{id}` 失敗例（403）
+## 18.4 `PATCH /api/recipes/{id}` 失敗例（403）
 ```json
 {
   "error": {
@@ -58,7 +58,7 @@
 }
 ```
 
-## 28.5 `POST /api/recipes/{id}/share` 成功例
+## 18.5 `POST /api/recipes/{id}/share` 成功例
 ```json
 {
   "public_slug": "r_6u4k2ajw",
@@ -67,7 +67,7 @@
 }
 ```
 
-## 28.6 `POST /api/recipes/{id}/nutrition` 失敗例（503）
+## 18.6 `POST /api/recipes/{id}/nutrition` 失敗例（503）
 ```json
 {
   "error": {
@@ -82,7 +82,9 @@
 }
 ```
 
-## 28.7 フロント実装ガイド（最小）
+## 18.7 フロント実装ガイド（最小）
 - `retryable=true` の場合のみ再試行UIを表示する。
 - `request_id` をエラー通知に表示し、問い合わせ時に活用する。
 - 403/404は再試行せず、画面導線（戻る/再ログイン）を優先する。
+
+

@@ -1,4 +1,4 @@
-# 03 Coding Standards
+﻿# 03 Coding Standards
 
 ## 目的
 - 実装品質のばらつきを減らし、AI/人間の両方で安全に変更できる基準を明確化する。
@@ -56,8 +56,8 @@
 ## API/サーバー規約
 - `app/api/**/route.ts` では `NextRequest` / `NextResponse` を使う。
 - リクエスト/レスポンスの型とバリデーションを明示する。
-- エラー応答は `20_API_Error_Contract_v1.md` と整合させる。
-- OpenAPI変更がある場合は `08_OpenAPI_v3.yaml` を同時更新する。
+- エラー応答は `13_API_Error_Contract_v1.md` と整合させる。
+- OpenAPI変更がある場合は `05_OpenAPI_v3.yaml` を同時更新する。
 
 ## テスト規約
 - ロジック追加時は最低1つのユニットテストを追加/更新する。
@@ -81,3 +81,4 @@
 ## 参考
 - 参考資料: `docs/参考資料/CodingGuide.ja.md`
 - 本ドキュメントと矛盾がある場合は、本リポジトリの実装実態と契約ドキュメントを優先する。
+

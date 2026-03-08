@@ -1,4 +1,4 @@
-# 04 Extraction Logic Design
+﻿# 04 Extraction Logic Design
 
 更新日: 2026-03-07
 対象: `POST /api/recipes/import` の材料/手順抽出ロジック
@@ -9,9 +9,9 @@
 - 非目的: 本ドキュメントは栄養値の精度最適化ではなく、抽出品質の安定化を主眼とする。
 
 関連仕様:
-- `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/09_Extraction_and_Nutrition_Pipeline_v3.md`
-- `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/08_OpenAPI_v3.yaml`
-- `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/07_DB_Schema_v3.sql`
+- `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/06_Extraction_and_Nutrition_Pipeline_v3.md`
+- `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/05_OpenAPI_v3.yaml`
+- `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/04_DB_Schema_v3.sql`
 
 ## 2. データ契約
 
@@ -255,3 +255,4 @@ quantity 正規化（表示は原文維持）:
   - 対策: 誤抽出ログから辞書定期更新
 - リスク: 生成系の創作
   - 対策: プロンプトで創作禁止 + Zod + diff guard
+
