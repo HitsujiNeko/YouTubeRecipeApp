@@ -4,6 +4,7 @@
 - ドキュメントの役割分離を明確にし、AIの参照迷子を防ぐ。
 
 ## 参照優先順位
+0. 実行ハブ: `docs/AI_Development/01_Execution_Hub.md`
 1. 全体設計の正本: `docs/YouTubeRecipeCard_FullDesign_v3_HealthLiteEdit_Pack/**`
 2. AI実装運用の正本: `docs/AI_Development/**`
 

@@ -6,8 +6,13 @@
 - AIは `status=todo` の先頭から1件を選ぶ。
 - 実装後は「この内容でPRを作成しますか？」とユーザーに確認し、OKならPRを作成する。
 - ユーザーがNOの場合は、指示に従い内容を修正・分割・統合する。
-- PR作成後に `done` へ更新し、次の1件へ進む。
-- 仕様不足でブロックした場合のみ `blocked` にして理由を書く。
+- `done` への更新タイミングは **PR作成時** とする（mainマージ待ちで止めない）。
+- `blocked` は「仕様不足」だけでなく「依存タスク待ち」「外部待ち（APIキー/環境/権限）」も許可し、理由を明記する。
+
+## Status Definition
+- `todo`: 先頭候補。未着手。
+- `blocked`: 着手不能。理由と解除条件が必要。
+- `done`: 実装/検証完了かつPR作成済み。
 
 ## Queue
 | id | area | task | status | acceptance | spec_sync |
@@ -16,17 +21,34 @@
 | UX-002 | ux | RecipeDetail詳細UX定義 | done | 栄養/未確定/失敗時UIが定義される | `03_UX_Detail/01_MVP_Screen_Spec.md` |
 | UX-003 | ux | NutritionFix詳細UX定義 | done | 候補選択/g入力/保存導線が定義される | `03_UX_Detail/01_MVP_Screen_Spec.md` |
 | UX-004 | ux | CookMode詳細UX定義 | done | ステップ遷移/タイマー/中断復帰が定義される | `03_UX_Detail/01_MVP_Screen_Spec.md` |
-| Q-001 | import | URL parser unit test実装 | done | watch/shorts/youtu.be が通る | `11_Test_Plan_v3.md` |
+| Q-001 | import | URL parser unit test実装 | done | watch/shorts/youtu.be が通る | `09_Extraction_and_Nutrition_Pipeline_v3.md` |
 | Q-002 | import | YouTube metadata client実装 | done | timeout/retry付きでtitle取得 | `24_NFR_SLO_v1.md` |
 | Q-003 | api | POST /api/recipes/import 実装 | done | OpenAPI準拠で200/400/429/503を返す | `08_OpenAPI_v3.yaml`, `20_API_Error_Contract_v1.md`, `28_OpenAPI_Examples_v1.md` |
 | Q-004 | ui | Home 画面のimport導線実装 | done | 入力/エラー/loading状態あり + レシピカード基盤 | `03_UX_Detail/01_MVP_Screen_Spec.md`, `03_UX_Detail/05_Component_Spec.md` |
-| Q-005 | ui | RecipeDetail 栄養カード実装 | done | confidence/coverage/unresolved表示 + CookMode導線 + サムネイル | `03_UX_Detail/01_MVP_Screen_Spec.md`, `17_UI_Copy_Disclaimer.md` |
+| Q-005 | ui | RecipeDetail 栄養カード実装 | done | confidence/coverage/unresolved表示 + CookMode導線 + サムネイル | `03_UX_Detail/01_MVP_Screen_Spec.md`, `05_UX_Spec_v3.md` |
 | Q-006 | nutrition | POST /api/recipes/{id}/nutrition 実装 | done | cache更新とunresolved返却 | `08_OpenAPI_v3.yaml`, `20_API_Error_Contract_v1.md` |
-| Q-007 | ui | NutritionFix 画面実装 | done | 候補選択 + g入力 + 保存 + 低confidence理由表示 | `03_UX_Detail/01_MVP_Screen_Spec.md`, `17_UI_Copy_Disclaimer.md` |
+| Q-007 | ui | NutritionFix 画面実装 | done | 候補選択 + g入力 + 保存 + 低confidence理由表示 | `03_UX_Detail/01_MVP_Screen_Spec.md`, `05_UX_Spec_v3.md` |
 | Q-008 | share | POST /api/recipes/{id}/share 実装 | done | slug作成/rotate | `08_OpenAPI_v3.yaml`, `19_Auth_Authorization_RLS_v1.md` |
 | Q-009 | ui | SharePage 実装 | done | 元動画埋め込み + クレジット表示 + レシピカード再利用 | `03_UX_Detail/01_MVP_Screen_Spec.md`, `13_Legal_Compliance_v3.md` |
-| Q-010 | test | import->detail->cook E2E追加 | done | Playwrightで主要導線が通る | `11_Test_Plan_v3.md` |
+| Q-010 | test | import->detail->cook E2E追加 | done | Playwrightで主要導線が通る | `09_Extraction_and_Nutrition_Pipeline_v3.md` |
 | Q-011 | api/ui | RecipeDetailの実データ表示導線を完成 | done | URL import後にDB保存された材料/手順がRecipeDetailに表示される | `08_OpenAPI_v3.yaml`, `07_DB_Schema_v3.sql`, `03_UX_Detail/01_MVP_Screen_Spec.md` |
+| Q-011A | ops | 開発運用ルール更新（PR作成時done/blocked定義拡張/roadmap連動） | done | Queue/Delivery/SyncMatrix/QualityGatesが一貫し、次タスク判断がぶれない | `02_Task_Queue.md`, `01_Implementation_Order.md`, `02_Document_Sync_Matrix.md`, `01_Quality_Gates.md`, `15_Roadmap_Backlog_v3.md` |
+| Q-011B | ops | 実行用ドキュメントハブ整備 | done | AIが最短導線で参照できるハブ文書が整備され、README/Mapから到達できる | `01_Execution_Hub.md`, `README.md`, `00_Document_Map.md` |
+| Q-011C | ops | FullDesign統合候補リスト作成 | done | 統合候補がファイル単位で明示され、分離維持対象と実施順が定義される | `04_Implementation_Standards/05_Document_Consolidation_Candidates.md`, `15_Roadmap_Backlog_v3.md` |
+| Q-011D | ops | Phase 1（B: UX/Disclaimer統合）実施 | done | `05_UX_Spec_v3.md` にDisclaimerを統合し、`17_UI_Copy_Disclaimer.md` を移行案内化する | `05_UX_Spec_v3.md`, `17_UI_Copy_Disclaimer.md`, `04_Implementation_Standards/02_Document_Sync_Matrix.md` |
+| Q-011E | ops | Phase 2（C: 運用1冊化）実施 | done | `21_Engineering_Operations_Handbook_v1.md` を新設し、`14/21/22/26/27` を移行案内化する | `21_Engineering_Operations_Handbook_v1.md`, `14_AI_Dev_Runbook_v3.md`, `21_Dev_Environment_Setup_v1.md`, `22_AI_Driven_Development_Playbook_v1.md`, `26_Operations_Runbook_v1.md`, `27_CI_CD_Definition_v1.md`, `04_Implementation_Standards/02_Document_Sync_Matrix.md` |
+| Q-011F | ops | Phase 3（A: Product/PRD統合）実施 | done | `01_Product_and_PRD_Handbook_v3.md` を新設し、`00/01/02/03/04` を移行案内化する | `01_Product_and_PRD_Handbook_v3.md`, `00_Project_Overview_v3.md`, `01_Market_Research_v3.md`, `02_Personas_JTBD_v3.md`, `03_Problem_Solution_Priority_v3.md`, `04_PRD_MVP_v3.md`, `04_Implementation_Standards/02_Document_Sync_Matrix.md` |
+| Q-011G | ops | Phase 4（D: 栄養/抽出運用の部分統合）実施 | done | `09_Extraction_and_Nutrition_Pipeline_v3.md` に `10/11` を付録統合し、`10/11` を移行案内化する | `09_Extraction_and_Nutrition_Pipeline_v3.md`, `10_Prompt_Library_v3.md`, `11_Test_Plan_v3.md`, `04_Implementation_Standards/02_Document_Sync_Matrix.md` |
 | Q-012 | design | 食材/手順抽出ロジック詳細設計 | done | rule/LLM fallback/検証/テスト戦略まで定義される | `04_Implementation_Standards/04_Extraction_Logic_Design.md`, `09_Extraction_and_Nutrition_Pipeline_v3.md` |
-| Q-013 | import | 抽出ロジック再実装（設計準拠） | todo | 設計書に沿ってimportで材料/手順抽出品質を改善 | `04_Implementation_Standards/04_Extraction_Logic_Design.md`, `08_OpenAPI_v3.yaml`, `07_DB_Schema_v3.sql` |
-| Q-014 | ui | CookModeの実データ表示対応 | blocked | Q-013完了後に着手（抽出品質確定前はUI検証不可） | `03_UX_Detail/01_MVP_Screen_Spec.md` |
+| Q-013 | import | 抽出ロジック再実装（design準拠: cleaner/chapter + LLM fallback + Zod） | todo | 抽出ユニット + import統合テストを追加し、importでingredients/stepsの品質を改善する | `04_Implementation_Standards/04_Extraction_Logic_Design.md`, `09_Extraction_and_Nutrition_Pipeline_v3.md`, `08_OpenAPI_v3.yaml`, `07_DB_Schema_v3.sql`, `05_Operations_and_Quality/01_Quality_Gates.md` |
+| Q-014 | compliance | Terms/Privacyページと免責表示の完成（Roadmap T-020） | todo | Terms/Privacy導線が追加され、YouTube利用・栄養推定免責がUI上で一貫表示される | `13_Legal_Compliance_v3.md`, `05_UX_Spec_v3.md`, `03_UX_Detail/01_MVP_Screen_Spec.md` |
+| Q-015 | ui | CookModeの実データ表示対応（Roadmap T-010仕上げ） | blocked | Q-013完了後、RecipeDetailと同一データソースでCookModeが動作する | `03_UX_Detail/01_MVP_Screen_Spec.md`, `03_UX_Detail/05_Component_Spec.md`, `09_Extraction_and_Nutrition_Pipeline_v3.md` |
+| Q-016 | quality | チャンネル別パーサ最適化（例: リュウジ） | blocked | 代表10URLで抽出品質が改善し、回帰テストで担保される | `15_Roadmap_Backlog_v3.md`, `09_Extraction_and_Nutrition_Pipeline_v3.md`, `04_Implementation_Standards/04_Extraction_Logic_Design.md` |
+| Q-017 | search | タグ + 栄養フィルタ検索 | blocked | たんぱく質密度等でフィルタ可能な検索UI/APIが動作する | `15_Roadmap_Backlog_v3.md`, `08_OpenAPI_v3.yaml`, `03_UX_Detail/01_MVP_Screen_Spec.md` |
+
+## Roadmap Link (15_Roadmap_Backlog_v3)
+- Q-013 は `T-005/T-006/T-007`（抽出再設計の中核）に対応。
+- Q-014 は `T-020`（Compliance）に対応。
+- Q-015 は `T-010`（CookMode UI仕上げ）に対応。
+- Q-016 は `T-018`（channel-specific parser）に対応。
+- Q-017 は `T-019`（tags + nutrition filter）に対応。

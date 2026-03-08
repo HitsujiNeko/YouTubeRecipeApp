@@ -5,6 +5,10 @@
 - typecheck: pass
 - format:check: pass
 
+## docs-only変更
+- `docs/**` のみ変更時は lint/typecheck/test を任意とする。
+- ただし Queue/Delivery/Sync Matrix の整合確認は必須。
+
 ## 条件付き
 - API変更: integration test必須
 - UX変更: E2E 1本以上更新

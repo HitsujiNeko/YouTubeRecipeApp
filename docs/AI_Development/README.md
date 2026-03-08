@@ -9,3 +9,6 @@
 1. 全体方針は FullDesign 側を優先する。
 2. 実装手順・Issue粒度・UI詳細は AI_Development 側を優先する。
 3. 仕様変更時は両方の整合を取る。
+
+最初の参照先:
+- `docs/AI_Development/01_Execution_Hub.md`

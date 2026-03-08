@@ -42,3 +42,52 @@
   - rule-based抽出を第一経路にする
   - 低品質ケースのみLLMフォールバック
   - 出力は必ずZodで検証してから永続化する
+
+## Appendix A: Prompt Library（旧 10_Prompt_Library_v3.md）
+
+### 共通ルール
+- 出力は必ずJSON（Markdown禁止）
+- 道具リンク/URL/スポンサー文言は材料に含めない
+- 手順は1文=1アクション、5〜15ステップに圧縮
+- 不明点を断定しない（推測は `is_ai_inferred=true`）
+
+### Prompt A: description -> レシピJSON
+- 目的: `video_title/channel_title/cleaned_description/chapters` から ingredients/steps を生成
+- 制約: JSONのみ出力、道具紹介・URL・スポンサー文言を除外
+
+### Prompt B: 材料名の正規化
+- 目的: 食品DB検索に適した正規化キーを返す
+- 出力: `normalized_name`, `hints[]`
+
+### Prompt C: quantity_text -> grams 推定
+- 目的: ルールで解決できない曖昧量の補助推定
+- 出力: `grams|null`, `confidence`, `reason`
+- 制約: 不確実なら `grams=null`
+
+## Appendix B: Test Plan（旧 11_Test_Plan_v3.md）
+
+### ユニットテスト
+- `parseYouTubeVideoId(url)`
+- `cleanDescription(description)`
+- `extractChapters(description)`
+- `nutrition.normalizeIngredient(name)`
+- `nutrition.matchFoodItem(q)`
+- `nutrition.parseQuantity(quantity_text)`
+- `nutrition.computeNutrition()`
+
+### 統合テスト
+- import APIが recipes/ingredients/steps を保存
+- nutrition APIが cache を更新し unresolved を返す
+- match overrideでconfidenceが上がる
+
+### E2E（Playwright）
+- URL入力 -> 生成 -> RecipeDetail -> CookMode
+- 未確定 -> NutritionFix -> 再計算 -> 栄養カード更新
+- 共有リンク -> SharePage表示
+
+### ゴールデンデータ
+- 代表動画URL 10本（チャンネル3つ）を固定し、材料抽出数とconfidence下限を回帰監視
+
+## 9.6 付録統合の運用
+- `10_Prompt_Library_v3.md` と `11_Test_Plan_v3.md` は移行案内のみを1リリース保持する。
+- 抽出/栄養運用の一次参照は本書（`09_Extraction_and_Nutrition_Pipeline_v3.md`）とする。
