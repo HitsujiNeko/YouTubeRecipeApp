@@ -48,3 +48,12 @@
   - Delivery Plan
   - Sync Matrix
 
+## 5. 安定参照ID方針
+- ファイル番号（例: `02_`, `14_`）は可読性のために使う。
+- 長期参照は「文書ID + 役割」で管理し、番号変更に依存しない。
+- 推奨ID:
+  - `DOC-PRD-HANDBOOK` -> `01_Product_and_PRD_Handbook_v3.md`
+  - `DOC-UX-SPEC` -> `02_UX_Spec_v3.md`
+  - `DOC-PIPELINE` -> `06_Extraction_and_Nutrition_Pipeline_v3.md`
+  - `DOC-ENG-OPS` -> `14_Engineering_Operations_Handbook_v1.md`
+

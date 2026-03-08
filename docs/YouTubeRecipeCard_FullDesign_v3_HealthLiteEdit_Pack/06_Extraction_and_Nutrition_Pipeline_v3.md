@@ -43,7 +43,7 @@
   - 低品質ケースのみLLMフォールバック
   - 出力は必ずZodで検証してから永続化する
 
-## Appendix A: Prompt Library（旧 10_Prompt_Library_v3.md）
+## Appendix A: Prompt Library
 
 ### 共通ルール
 - 出力は必ずJSON（Markdown禁止）
@@ -64,7 +64,7 @@
 - 出力: `grams|null`, `confidence`, `reason`
 - 制約: 不確実なら `grams=null`
 
-## Appendix B: Test Plan（旧 11_Test_Plan_v3.md）
+## Appendix B: Test Plan
 
 ### ユニットテスト
 - `parseYouTubeVideoId(url)`

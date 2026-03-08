@@ -8,6 +8,11 @@
 ## docs-only変更
 - `docs/**` のみ変更時は lint/typecheck/test を任意とする。
 - ただし Queue/Delivery/Sync Matrix の整合確認は必須。
+- docs参照整合チェック（リンク先実在確認）は必須。
+
+## docs整合チェック（必須）
+- Markdown内の `docs/...` 参照先が実在すること。
+- 削除済み文書への参照が残っていないこと。
 
 ## 条件付き
 - API変更: integration test必須

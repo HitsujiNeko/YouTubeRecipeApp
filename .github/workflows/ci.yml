@@ -7,6 +7,40 @@ on:
     branches: [main, release]
 
 jobs:
+  docs-integrity:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate docs references
+        run: |
+          python - <<'PY'
+          import re
+          import sys
+          from pathlib import Path
+
+          root = Path('.')
+          md_files = list(root.glob('docs/**/*.md'))
+          pattern = re.compile(r'`(docs/[^\s`]+)`')
+
+          missing = []
+          for md in md_files:
+              text = md.read_text(encoding='utf-8', errors='ignore')
+              for m in pattern.finditer(text):
+                  target = root / m.group(1)
+                  if not target.exists():
+                      missing.append((str(md), m.group(1)))
+
+          if missing:
+              print('Missing docs references found:')
+              for src, ref in missing[:200]:
+                  print(f'- {src} -> {ref}')
+              sys.exit(1)
+
+          print(f'Docs integrity OK ({len(md_files)} markdown files checked)')
+          PY
+
   web-checks:
     runs-on: ubuntu-latest
     defaults:
