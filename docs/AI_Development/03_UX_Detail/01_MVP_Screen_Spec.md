@@ -71,10 +71,25 @@
 - `409` (share): 「共有URL作成に競合が発生しました。再試行してください」
 - `503`: 栄養カード内に best-effort 表示 + 再計算ボタン
 
+### extraction_status 表示仕様
+抽出パイプラインの結果を `extraction_status` フィールドで受け取り、以下のとおり表示する。
+
+| status | 表示UI |
+|---|---|
+| `success` | 通常表示（バナーなし） |
+| `partial` | インフォバナー「レシピ情報が不完全です。材料または手順を手動で補完してください」 |
+| `no_recipe_found` | インフォバナー「説明欄にレシピ情報が見つかりませんでした。手動で追加できます」 |
+| `no_source` | 警告バナー「動画の情報を取得できませんでした。手動でレシピを入力してください」 |
+
+- `partial` / `no_recipe_found` / `no_source` のいずれかの場合は NutritionFix 導線を非表示とする（確定データがないため栄養推定は意味をなさない）。
+- 将来的に「動画を見ながら手動追加」モード（P1: Q-018）に誘導するバナーへ発展させる。
+
 ### 受け入れ基準
 - confidence/coverage/unresolved数が常時表示される
 - unresolvedありの場合 `NutritionFix` 導線が表示される
 - share失敗時にエラー理由と再試行導線を表示する
+- `extraction_status` に応じたバナーが表示される
+- `partial`/`no_recipe_found`/`no_source` 時は NutritionFix 導線を非表示にする
 
 ## NutritionFix
 ### 目的
