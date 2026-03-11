@@ -136,6 +136,7 @@ descriptionのみを前提とした設計では「空配列を返してimport成
 - ライブラリ: `youtube-transcript`（npm）
 - 優先言語: リクエストの `language` パラメータ（デフォルト `ja`）、次点 `en`
 - 取得できない場合（字幕なし・プライベート動画等）は `null` として継続
+- 取得フォーマットは `fmt=vtt` を優先し、失敗時は `fmt=json3` と XML timedtext を順次フォールバックする
 - タイムスタンプ付きセグメントを結合してプレーンテキスト化
 - 最大文字数: 15,000文字（超過時は先頭から切り捨て）
 - **取得したテキストは `source_text` カラムに永続化する（再処理コスト削減）**
@@ -291,15 +292,21 @@ extraction_confidence = min(1,
 | カラム | 型 | 変更 | 内容 |
 |---|---|---|---|
 | `extraction_confidence` | float | 既存 | 集計スコア |
-| `extraction_notes` | text | 既存 | `mode=...; ingredients=n; steps=n` |
+| `extraction_notes` | text | 既存 | `mode=...; llm_result=...; ingredients=n; steps=n` |
 | `extraction_status` | text | **新規追加** | `success/partial/no_recipe_found/no_source` |
 | `source_text` | text | **新規追加** | 永続化した字幕テキスト（nullable） |
 
-### 9.2 recipe_ingredientsテーブル（変更なし）
+### 9.2 extraction_runsテーブル（運用ログ）
+
+- LLM構造化を試行した場合、`extraction_runs` に1行記録する。
+- `extractor_name='llm_structure'`, `model_name='gpt-4o-mini'` を保存する。
+- LLM成功時は `status='success'`、失敗時は `status='failed'` とし、`error_message` に失敗理由（最大500文字）を保存する。
+
+### 9.3 recipe_ingredientsテーブル（変更なし）
 
 `position, name, quantity_text, group_label, is_optional` を保存。
 
-### 9.3 recipe_stepsテーブル（変更なし）
+### 9.4 recipe_stepsテーブル（変更なし）
 
 `position, text, timestamp_sec, timer_sec, is_ai_inferred` を保存。
 

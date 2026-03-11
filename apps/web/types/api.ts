@@ -36,6 +36,7 @@ export type ImportRecipeRequest = {
 export type ImportRecipeResponse = {
   recipe_id: string;
   extraction_confidence: number;
+  extraction_status: "success" | "partial" | "no_recipe_found" | "no_source";
   nutrition: null;
 };
 

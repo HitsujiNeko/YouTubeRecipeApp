@@ -1,9 +1,19 @@
 import crypto from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
+import { hasRecipeSignalsInDescription, selectSourceMode } from "@/lib/extraction/evaluateSource";
+import { LlmStructureError, structureRecipeWithLlm } from "@/lib/extraction/llmStructure";
+import { extractRecipeByRules } from "@/lib/extraction/ruleExtract";
+import { computeExtractionConfidence, decideExtractionStatus } from "@/lib/extraction/status";
+import type {
+  ExtractionStatus,
+  StructuredIngredient,
+  StructuredStep,
+} from "@/lib/extraction/types";
 import { normalizeFoodQuery } from "@/lib/nutrition/normalizeFoodQuery";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import { fetchYouTubeMetadata, YouTubeUpstreamError } from "@/lib/youtube/fetchYouTubeMetadata";
+import { fetchYouTubeTranscript } from "@/lib/youtube/fetchYouTubeTranscript";
 import { parseYouTubeVideoId } from "@/lib/youtube/parseYouTubeVideoId";
 
 const importRequestSchema = z.object({
@@ -25,168 +35,30 @@ type SupabaseLikeError = {
   details?: string;
 };
 
-type ExtractedIngredient = {
-  name: string;
-  quantityText: string | null;
-};
-
-type ExtractedStep = {
-  text: string;
-  timestampSec: number | null;
-  isAiInferred: boolean;
-};
-
 type FoodCandidate = {
   id: number;
   searchable_name: string;
 };
 
-const INGREDIENT_HEADING_PATTERN = /(材料|ingredients?)/i;
-const STEP_HEADING_PATTERN = /(作り方|手順|instructions?|steps?|method)/i;
-const URL_PATTERN = /^https?:\/\//i;
-const TIMESTAMP_PATTERN = /^(\d{1,2}):(\d{2})(?::(\d{2}))?/;
+type LlmResult =
+  | "not_attempted"
+  | "success"
+  | "fallback_rule"
+  | "api_error"
+  | "invalid_payload"
+  | "unknown_error";
 
-function stripBulletPrefix(line: string): string {
-  return line.replace(/^[\s\-・●○■□◆◇▶▷►]+/, "").trim();
-}
-
-function parseIngredientLine(line: string): ExtractedIngredient {
-  const cleaned = stripBulletPrefix(line);
-  const quantityMatch = cleaned.match(
-    /^(.*?)(?:[\s\u3000]+)(\d+(?:\.\d+)?\s*(?:g|ml|cc|個|本|枚)|大さじ\s*\d+(?:\.\d+)?|小さじ\s*\d+(?:\.\d+)?|適量|少々)$/i,
-  );
-
-  if (!quantityMatch) {
-    return {
-      name: cleaned,
-      quantityText: null,
-    };
+function normalizeSourceText(text: string | null): string {
+  if (!text) {
+    return "";
   }
 
-  return {
-    name: quantityMatch[1].trim(),
-    quantityText: quantityMatch[2].trim(),
-  };
-}
-
-function toTimestampSec(value: string): number | null {
-  const match = value.match(TIMESTAMP_PATTERN);
-
-  if (!match) {
-    return null;
-  }
-
-  const hOrM = Number(match[1]);
-  const m = Number(match[2]);
-  const s = Number(match[3] ?? 0);
-
-  if (Number.isNaN(hOrM) || Number.isNaN(m) || Number.isNaN(s)) {
-    return null;
-  }
-
-  return match[3] ? hOrM * 3600 + m * 60 + s : hOrM * 60 + m;
-}
-
-function parseStepLine(line: string): ExtractedStep {
-  const cleaned = stripBulletPrefix(line);
-  const timestamp = toTimestampSec(cleaned);
-  const textWithoutTimestamp = cleaned
-    .replace(TIMESTAMP_PATTERN, "")
-    .replace(/^[-:：\s]+/, "")
-    .replace(/^\d+[\.\)．、]\s*/, "")
-    .trim();
-
-  return {
-    text: textWithoutTimestamp || cleaned,
-    timestampSec: timestamp,
-    isAiInferred: false,
-  };
-}
-
-function extractIngredientsAndSteps(
-  description: string | null,
-  allowAiInferSteps: boolean,
-): {
-  ingredients: ExtractedIngredient[];
-  steps: ExtractedStep[];
-} {
-  if (!description) {
-    return {
-      ingredients: [],
-      steps: allowAiInferSteps
-        ? [
-            {
-              text: "動画の内容を参照して調理してください。",
-              timestampSec: null,
-              isAiInferred: true,
-            },
-          ]
-        : [],
-    };
-  }
-
-  const lines = description
+  return text
     .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => line.length > 0);
-
-  const ingredients: ExtractedIngredient[] = [];
-  const steps: ExtractedStep[] = [];
-
-  let mode: "neutral" | "ingredients" | "steps" = "neutral";
-
-  for (const rawLine of lines) {
-    const line = stripBulletPrefix(rawLine);
-
-    if (!line || URL_PATTERN.test(line)) {
-      continue;
-    }
-
-    if (INGREDIENT_HEADING_PATTERN.test(line)) {
-      mode = "ingredients";
-      continue;
-    }
-
-    if (STEP_HEADING_PATTERN.test(line)) {
-      mode = "steps";
-      continue;
-    }
-
-    if (mode === "ingredients") {
-      ingredients.push(parseIngredientLine(line));
-      continue;
-    }
-
-    if (mode === "steps" || TIMESTAMP_PATTERN.test(line) || /^\d+[\.\)．、]/.test(line)) {
-      steps.push(parseStepLine(line));
-    }
-  }
-
-  const dedupedIngredients = ingredients
-    .filter((item) => item.name.length > 0)
-    .filter((item, index, list) => list.findIndex((row) => row.name === item.name) === index)
-    .slice(0, 20);
-
-  const dedupedSteps = steps
-    .filter((item) => item.text.length > 0)
-    .filter((item, index, list) => list.findIndex((row) => row.text === item.text) === index)
-    .slice(0, 30);
-
-  return {
-    ingredients: dedupedIngredients,
-    steps:
-      dedupedSteps.length > 0
-        ? dedupedSteps
-        : allowAiInferSteps
-          ? [
-              {
-                text: "動画の内容を参照して調理してください。",
-                timestampSec: null,
-                isAiInferred: true,
-              },
-            ]
-          : [],
-  };
+    .filter((line) => line.length > 0)
+    .filter((line) => !/^https?:\/\//i.test(line))
+    .join("\n");
 }
 
 function scoreMatch(query: string, candidate: string): number {
@@ -282,7 +154,7 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const { url, language, options } = parsed.data;
+    const { url, language } = parsed.data;
     const videoId = parseYouTubeVideoId(url);
 
     if (!videoId) {
@@ -296,7 +168,11 @@ export async function POST(req: NextRequest) {
       });
     }
 
-    const metadata = await fetchYouTubeMetadata(videoId);
+    const [metadata, transcript] = await Promise.all([
+      fetchYouTubeMetadata(videoId),
+      fetchYouTubeTranscript(videoId, language),
+    ]);
+
     const supabase = createSupabaseServiceClient();
 
     const canonicalUrl = `https://www.youtube.com/watch?v=${videoId}`;
@@ -331,24 +207,106 @@ export async function POST(req: NextRequest) {
         language,
         title: metadata.title,
         extraction_confidence: 0,
+        extraction_status: "no_source",
+        source_text: transcript,
       })
-      .select("id, extraction_confidence")
+      .select("id, extraction_confidence, extraction_status")
       .single();
 
     if (recipeResult.error || !recipeResult.data) {
       throw recipeResult.error ?? new Error("Failed to create recipe");
     }
 
-    const extracted = extractIngredientsAndSteps(
-      metadata.description,
-      options?.allow_ai_infer_steps ?? false,
-    );
+    const descriptionHasRecipe = hasRecipeSignalsInDescription(metadata.description);
+    const sourceMode = selectSourceMode({
+      descriptionHasRecipe,
+      transcript,
+    });
+
+    let extracted: {
+      ingredients: StructuredIngredient[];
+      steps: StructuredStep[];
+    } = {
+      ingredients: [],
+      steps: [],
+    };
+
+    let extractionStatus: ExtractionStatus = "no_source";
+    let llmResult: LlmResult = "not_attempted";
+    let llmRunStatus: "success" | "failed" | null = null;
+    let llmRunError: string | null = null;
+
+    if (sourceMode !== "none") {
+      const descriptionText = descriptionHasRecipe ? normalizeSourceText(metadata.description) : "";
+      const transcriptText = sourceMode === "description" ? "" : normalizeSourceText(transcript);
+
+      try {
+        extracted = await structureRecipeWithLlm({
+          title: metadata.title,
+          descriptionText,
+          transcriptText,
+        });
+        llmResult = "success";
+        llmRunStatus = "success";
+        extractionStatus = decideExtractionStatus({
+          ingredientsCount: extracted.ingredients.length,
+          stepsCount: extracted.steps.length,
+          mode: sourceMode,
+        });
+      } catch (error) {
+        llmRunStatus = "failed";
+
+        if (error instanceof LlmStructureError) {
+          llmResult = error.kind === "api" ? "api_error" : "invalid_payload";
+          llmRunError = error.message;
+        } else if (error instanceof Error) {
+          llmResult = "unknown_error";
+          llmRunError = error.message;
+        } else {
+          llmResult = "unknown_error";
+          llmRunError = "Unknown LLM error";
+        }
+
+        const fallback = extractRecipeByRules(metadata.description);
+
+        if (fallback.ingredients.length > 0 || fallback.steps.length > 0) {
+          extracted = fallback;
+          llmResult = "fallback_rule";
+          extractionStatus = decideExtractionStatus({
+            ingredientsCount: extracted.ingredients.length,
+            stepsCount: extracted.steps.length,
+            mode: sourceMode,
+          });
+        } else if (error instanceof LlmStructureError && error.kind === "api") {
+          extractionStatus = "no_source";
+        } else {
+          extractionStatus = descriptionHasRecipe ? "no_recipe_found" : "no_source";
+        }
+      }
+
+      if (llmRunStatus) {
+        const extractionRunResult = await supabase.from("extraction_runs").insert({
+          recipe_id: recipeResult.data.id,
+          source_id: videoSourceResult.data.id,
+          extractor_name: "llm_structure",
+          model_name: "gpt-4o-mini",
+          status: llmRunStatus,
+          error_message: llmRunError ? llmRunError.slice(0, 500) : null,
+        });
+
+        if (extractionRunResult.error) {
+          llmResult = llmResult === "success" ? "unknown_error" : llmResult;
+        }
+      }
+    }
 
     const ingredientInsertRows = extracted.ingredients.map((ingredient, index) => ({
       recipe_id: recipeResult.data.id,
       position: index + 1,
       name: ingredient.name,
-      quantity_text: ingredient.quantityText,
+      quantity_text: ingredient.quantity_text,
+      group_label: ingredient.group_label,
+      is_optional: ingredient.is_optional,
     }));
 
     const ingredientResult = ingredientInsertRows.length
@@ -438,8 +396,9 @@ export async function POST(req: NextRequest) {
       recipe_id: recipeResult.data.id,
       position: index + 1,
       text: step.text,
-      timestamp_sec: step.timestampSec,
-      is_ai_inferred: step.isAiInferred,
+      timestamp_sec: step.timestamp_sec,
+      timer_sec: step.timer_sec,
+      is_ai_inferred: step.is_ai_inferred,
     }));
 
     if (stepInsertRows.length > 0) {
@@ -450,27 +409,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    const extractionConfidenceBase =
-      extracted.ingredients.length > 0 && extracted.steps.length > 0
-        ? 0.7
-        : extracted.ingredients.length > 0 || extracted.steps.length > 0
-          ? 0.5
-          : 0.2;
-    const matchBoost = extracted.ingredients.length
-      ? Math.min(0.25, autoMatchRows.length / extracted.ingredients.length)
-      : 0;
-    const extractionConfidence = Number(
-      Math.min(1, extractionConfidenceBase + matchBoost).toFixed(2),
-    );
+    const extractionConfidence = computeExtractionConfidence({
+      ingredientsCount: extracted.ingredients.length,
+      stepsCount: extracted.steps.length,
+      sourceMode,
+    });
 
     const recipeUpdateResult = await supabase
       .from("recipes")
       .update({
         extraction_confidence: extractionConfidence,
-        extraction_notes:
-          extracted.ingredients.length > 0 || extracted.steps.length > 0
-            ? "parsed from YouTube description"
-            : "metadata-only import",
+        extraction_status: extractionStatus,
+        source_text: transcript,
+        extraction_notes: `mode=${sourceMode}; llm_result=${llmResult}; ingredients=${extracted.ingredients.length}; steps=${extracted.steps.length}`,
       })
       .eq("id", recipeResult.data.id);
 
@@ -482,6 +433,7 @@ export async function POST(req: NextRequest) {
       {
         recipe_id: recipeResult.data.id,
         extraction_confidence: extractionConfidence,
+        extraction_status: extractionStatus,
         nutrition: null,
       },
       { status: 200 },

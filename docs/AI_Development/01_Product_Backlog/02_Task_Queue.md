@@ -40,7 +40,10 @@
 | Q-011F | ops | Phase 3（A: Product/PRD統合）実施 | done | `01_Product_and_PRD_Handbook_v3.md` にProduct/PRD文書を統合する | `01_Product_and_PRD_Handbook_v3.md`, `04_Implementation_Standards/02_Document_Sync_Matrix.md` |
 | Q-011G | ops | Phase 4（D: 栄養/抽出運用の部分統合）実施 | done | `06_Extraction_and_Nutrition_Pipeline_v3.md` にPrompt/Testを付録統合する | `06_Extraction_and_Nutrition_Pipeline_v3.md`, `04_Implementation_Standards/02_Document_Sync_Matrix.md` |
 | Q-012 | design | 食材/手順抽出ロジック詳細設計 | done | rule/LLM fallback/検証/テスト戦略まで定義される | `04_Implementation_Standards/04_Extraction_Logic_Design.md`, `06_Extraction_and_Nutrition_Pipeline_v3.md` |
-| Q-013 | import | 抽出ロジック再実装（3段階パイプライン: description + timedtext字幕 + LLM構造化 + extraction_status） | todo | ①DBマイグレーション（extraction_status/source_text列追加）②字幕取得クライアント③source評価関数④LLM構造化⑤import route置換⑥ユニット+統合テスト。APIレスポンスにextraction_statusが含まれ、8割カバレッジを目指す | `04_Implementation_Standards/04_Extraction_Logic_Design.md`, `06_Extraction_and_Nutrition_Pipeline_v3.md`, `05_OpenAPI_v3.yaml`, `04_DB_Schema_v3.sql`, `05_Operations_and_Quality/01_Quality_Gates.md` |
+| Q-013 | import | 抽出ロジック再実装（3段階パイプライン: description + timedtext字幕 + LLM構造化 + extraction_status） | done | ①DBマイグレーション（extraction_status/source_text列追加）②字幕取得クライアント③source評価関数④LLM構造化⑤import route置換⑥ユニット+統合テスト。APIレスポンスにextraction_statusが含まれ、8割カバレッジを目指す | `04_Implementation_Standards/04_Extraction_Logic_Design.md`, `06_Extraction_and_Nutrition_Pipeline_v3.md`, `05_OpenAPI_v3.yaml`, `04_DB_Schema_v3.sql`, `05_Operations_and_Quality/01_Quality_Gates.md` |
+| Q-013A | ops | Supabase CLIマイグレーション運用整備（自動化基盤） | blocked | Q-013の目視確認完了とPR作成時に同時完了扱いにする。`apps/web/supabase/migrations` 運用に移行済み。 | `apps/web/README.md`, `apps/web/package.json`, `.github/workflows/db-migrations.yml`, `04_DB_Schema_v3.sql` |
+| Q-013B | ops | PR前目視確認フェーズの標準化（manual QA gate） | blocked | Q-013の目視確認完了とPR作成時に同時完了扱いにする。`verify:prepr` 導線は整備済み。 | `apps/web/package.json`, `apps/web/README.md`, `05_Operations_and_Quality/01_Quality_Gates.md`, `.github/pull_request_template.md` |
+| Q-013C | import | LLMプロバイダ切替（Gemini）と成功実証 | todo | ①Geminiプロバイダ実装（開発:無料枠/本番:有料）②`llm_result=success` を最低1件確認③`extraction_runs.status=success` を最低1件確認④フォールバック動作を維持 | `04_Implementation_Standards/04_Extraction_Logic_Design.md`, `05_OpenAPI_v3.yaml`, `03_UX_Detail/01_MVP_Screen_Spec.md` |
 | Q-018 | ui | 動画アシスト抽出モード実装（P1） | blocked | Q-013完了後。左:YouTube埋め込み、右:レシピカード、下部固定ボタン（＋材料として追加 / ＋手順として追加）。ユーザー操作をトリガーにLLMが候補を提示し、ユーザーが1タップで確定。確定後に栄養再計算。 | `04_Implementation_Standards/04_Extraction_Logic_Design.md`, `03_UX_Detail/01_MVP_Screen_Spec.md` |
 | Q-014 | compliance | Terms/Privacyページと免責表示の完成（Roadmap T-020） | todo | Terms/Privacy導線が追加され、YouTube利用・栄養推定免責がUI上で一貫表示される | `08_Legal_Compliance_v3.md`, `02_UX_Spec_v3.md`, `03_UX_Detail/01_MVP_Screen_Spec.md` |
 | Q-015 | ui | CookModeの実データ表示対応（Roadmap T-010仕上げ） | blocked | Q-013完了後、RecipeDetailと同一データソースでCookModeが動作する | `03_UX_Detail/01_MVP_Screen_Spec.md`, `03_UX_Detail/05_Component_Spec.md`, `06_Extraction_and_Nutrition_Pipeline_v3.md` |
@@ -49,6 +52,7 @@
 
 ## Roadmap Link (09_Roadmap_Backlog_v3)
 - Q-013 は `T-005/T-006/T-007`（抽出再設計の中核）に対応。新設計: description + timedtext字幕 + LLM構造化 + extraction_status。
+- Q-013C は `T-005/T-006/T-007` の運用安定化タスク（LLMプロバイダ切替と成功実証）に対応。
 - Q-014 は `T-020`（Compliance）に対応。
 - Q-015 は `T-010`（CookMode UI仕上げ）に対応。
 - Q-016 は `T-018`（channel-specific parser）に対応。
