@@ -34,6 +34,61 @@ npm run dev
 - `npm run format`: format files with Prettier
 - `npm run format:check`: verify formatting
 - `npm run test:e2e`: run Playwright tests
+- `npm run verify:prepr`: run auto checks and generate a manual QA checklist file
+- `npm run db:migration:new -- <name>`: create a new Supabase migration file
+- `npm run db:push`: apply `supabase/migrations` to linked project
+- `npm run db:reset:local`: reset local Supabase DB and replay migrations
+
+## Pre-PR Verification
+
+Before creating a PR, run:
+
+```bash
+npm run verify:prepr
+```
+
+This command does two things:
+
+1. Runs automated checks (`format:check`, `lint`, `typecheck`, `test:unit`)
+2. Generates a manual QA template in `test-results/manual-qa/`
+
+Use the generated checklist for visual/manual validation and attach screenshots in PR.
+
+## DB Migration (Supabase CLI)
+
+This project uses `apps/web/supabase/migrations` as the single source of truth for schema diffs.
+
+1. Run via `npx` (no global install required)
+
+```bash
+npx supabase --version
+```
+
+2. Link your project once
+
+```bash
+cd apps/web
+npx supabase login
+npx supabase link --project-ref <your-project-ref>
+```
+
+3. Create a migration
+
+```bash
+npm run db:migration:new -- add_some_column
+```
+
+4. Edit the generated SQL in `supabase/migrations/*`
+
+5. Apply migration
+
+```bash
+npm run db:push
+```
+
+Current applied migration for Q-013:
+
+- `supabase/migrations/202603090001_q013_add_extraction_columns.sql`
 
 ## Structure
 

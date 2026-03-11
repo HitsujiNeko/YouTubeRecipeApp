@@ -51,10 +51,12 @@
 - [ ] `npm run typecheck`（apps/web）
 - [ ] `npm run test:unit`（必要時）
 - [ ] `npm run test:e2e`（必要時）
+- [ ] `npm run verify:prepr`（apps/web, 自動チェック + 目視確認テンプレ生成）
 
 ### 確認観点
 - 正常系:
 - 異常系:
+- 目視確認チェックリスト: `apps/web/test-results/manual-qa/...`
 - 未実施項目（あれば理由）:
 
 ## 影響範囲
