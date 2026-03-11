@@ -86,6 +86,9 @@ paths:
                 properties:
                   recipe_id: { type: string }
                   extraction_confidence: { type: number }
+                  extraction_status:
+                    type: string
+                    enum: [success, partial, no_recipe_found, no_source]
                   nutrition:
                     type: object
                     nullable: true

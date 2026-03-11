@@ -11,7 +11,13 @@
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "test:unit": "vitest run",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "verify:prepr:auto": "npm run format:check && npm run lint && npm run typecheck && npm run test:unit",
+    "verify:prepr:manual-template": "node scripts/prepare-manual-qa.mjs",
+    "verify:prepr": "npm run verify:prepr:auto && npm run verify:prepr:manual-template",
+    "db:migration:new": "npx supabase migration new",
+    "db:push": "npx supabase db push",
+    "db:reset:local": "npx supabase db reset"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.98.0",

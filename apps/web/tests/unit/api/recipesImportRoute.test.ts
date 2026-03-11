@@ -1,9 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { POST } from "@/app/api/recipes/import/route";
+import { LlmStructureError } from "@/lib/extraction/llmStructure";
 import { YouTubeUpstreamError } from "@/lib/youtube/fetchYouTubeMetadata";
 
 const parseYouTubeVideoIdMock = vi.fn();
 const fetchYouTubeMetadataMock = vi.fn();
+const fetchYouTubeTranscriptMock = vi.fn();
+const structureRecipeWithLlmMock = vi.fn();
 const createSupabaseServiceClientMock = vi.fn();
 
 vi.mock("@/lib/youtube/parseYouTubeVideoId", () => ({
@@ -18,6 +21,21 @@ vi.mock("@/lib/youtube/fetchYouTubeMetadata", async () => {
   return {
     ...actual,
     fetchYouTubeMetadata: (...args: unknown[]) => fetchYouTubeMetadataMock(...args),
+  };
+});
+
+vi.mock("@/lib/youtube/fetchYouTubeTranscript", () => ({
+  fetchYouTubeTranscript: (...args: unknown[]) => fetchYouTubeTranscriptMock(...args),
+}));
+
+vi.mock("@/lib/extraction/llmStructure", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/extraction/llmStructure")>(
+    "@/lib/extraction/llmStructure",
+  );
+
+  return {
+    ...actual,
+    structureRecipeWithLlm: (...args: unknown[]) => structureRecipeWithLlmMock(...args),
   };
 });
 
@@ -43,7 +61,11 @@ function createMockSupabase(params: {
     error: { message: string; code?: string; details?: string } | null;
   };
   recipeResult?: {
-    data: { id: string; extraction_confidence: number | null } | null;
+    data: {
+      id: string;
+      extraction_confidence: number | null;
+      extraction_status?: string | null;
+    } | null;
     error: { message: string; code?: string; details?: string } | null;
   };
   insertedIngredients?: Array<{ id: string; name: string; quantity_text: string | null }>;
@@ -51,7 +73,7 @@ function createMockSupabase(params: {
 }): MockSupabase {
   const videoSourceResult = params.videoSourceResult ?? { data: { id: "source-1" }, error: null };
   const recipeResult = params.recipeResult ?? {
-    data: { id: "recipe-1", extraction_confidence: 0 },
+    data: { id: "recipe-1", extraction_confidence: 0, extraction_status: "no_source" },
     error: null,
   };
   const insertedIngredients = params.insertedIngredients ?? [];
@@ -86,6 +108,7 @@ function createMockSupabase(params: {
 
   const recipeStepsInsert = vi.fn().mockResolvedValue({ data: [], error: null });
   const matchesUpsert = vi.fn().mockResolvedValue({ data: [], error: null });
+  const extractionRunsInsert = vi.fn().mockResolvedValue({ data: [], error: null });
   const recipesUpdateEq = vi.fn().mockResolvedValue({ data: [], error: null });
   const recipesUpdate = vi.fn().mockReturnValue({ eq: recipesUpdateEq });
 
@@ -125,6 +148,12 @@ function createMockSupabase(params: {
       };
     }
 
+    if (tableName === "extraction_runs") {
+      return {
+        insert: extractionRunsInsert,
+      };
+    }
+
     throw new Error(`Unexpected table: ${tableName}`);
   });
 
@@ -138,6 +167,8 @@ describe("POST /api/recipes/import", () => {
 
   it("returns 200 with recipe_id for valid URL", async () => {
     parseYouTubeVideoIdMock.mockReturnValue("WLfTFCKqANA");
+    fetchYouTubeTranscriptMock.mockResolvedValue(null);
+    structureRecipeWithLlmMock.mockResolvedValue({ ingredients: [], steps: [] });
     fetchYouTubeMetadataMock.mockResolvedValue({
       title: "Sample",
       description: null,
@@ -156,9 +187,10 @@ describe("POST /api/recipes/import", () => {
     expect(response.status).toBe(200);
     expect(body).toMatchObject({
       recipe_id: "recipe-1",
+      extraction_status: "no_source",
       nutrition: null,
     });
-    expect(body.extraction_confidence).toBe(0.2);
+    expect(body.extraction_confidence).toBe(0);
   });
 
   it("returns 400 for unsupported YouTube URL format", async () => {
@@ -174,6 +206,7 @@ describe("POST /api/recipes/import", () => {
 
   it("returns 429 when upstream quota is exceeded", async () => {
     parseYouTubeVideoIdMock.mockReturnValue("WLfTFCKqANA");
+    fetchYouTubeTranscriptMock.mockResolvedValue(null);
     fetchYouTubeMetadataMock.mockRejectedValue(
       new YouTubeUpstreamError("YouTube API quota exceeded", 429, true),
     );
@@ -190,6 +223,7 @@ describe("POST /api/recipes/import", () => {
 
   it("returns 503 when upstream service is unavailable", async () => {
     parseYouTubeVideoIdMock.mockReturnValue("WLfTFCKqANA");
+    fetchYouTubeTranscriptMock.mockResolvedValue(null);
     fetchYouTubeMetadataMock.mockRejectedValue(
       new YouTubeUpstreamError("YouTube API timeout", 503, true),
     );
@@ -206,6 +240,7 @@ describe("POST /api/recipes/import", () => {
 
   it("returns 503 upstream_unavailable when supabase schema is not initialized", async () => {
     parseYouTubeVideoIdMock.mockReturnValue("WLfTFCKqANA");
+    fetchYouTubeTranscriptMock.mockResolvedValue(null);
     fetchYouTubeMetadataMock.mockResolvedValue({
       title: "Sample",
       description: null,
@@ -236,6 +271,7 @@ describe("POST /api/recipes/import", () => {
 
   it("returns 503 upstream_unavailable when server env is invalid", async () => {
     parseYouTubeVideoIdMock.mockReturnValue("WLfTFCKqANA");
+    fetchYouTubeTranscriptMock.mockResolvedValue(null);
     fetchYouTubeMetadataMock.mockRejectedValue(new Error("Invalid server environment variables"));
 
     const response = await POST(
@@ -248,8 +284,9 @@ describe("POST /api/recipes/import", () => {
     expect(body.error.details.provider).toBe("config");
   });
 
-  it("persists parsed ingredients, steps, and auto matches from description", async () => {
+  it("persists extracted ingredients/steps and returns extraction_status", async () => {
     parseYouTubeVideoIdMock.mockReturnValue("WLfTFCKqANA");
+    fetchYouTubeTranscriptMock.mockResolvedValue("鶏むね肉 200g\n手順: 焼く");
     fetchYouTubeMetadataMock.mockResolvedValue({
       title: "鶏むね肉レシピ",
       description: [
@@ -262,6 +299,40 @@ describe("POST /api/recipes/import", () => {
       ].join("\n"),
       channelTitle: "Channel",
       thumbnailUrl: "https://example.com/thumb.jpg",
+    });
+    structureRecipeWithLlmMock.mockResolvedValue({
+      ingredients: [
+        {
+          name: "鶏むね肉",
+          quantity_text: "200g",
+          group_label: null,
+          is_optional: false,
+          confidence: 0.75,
+        },
+        {
+          name: "塩",
+          quantity_text: "少々",
+          group_label: null,
+          is_optional: false,
+          confidence: 0.75,
+        },
+      ],
+      steps: [
+        {
+          text: "下味をつける",
+          timestamp_sec: null,
+          timer_sec: null,
+          is_ai_inferred: false,
+          confidence: 0.75,
+        },
+        {
+          text: "焼く",
+          timestamp_sec: 120,
+          timer_sec: null,
+          is_ai_inferred: false,
+          confidence: 0.75,
+        },
+      ],
     });
 
     const mockSupabase = createMockSupabase({
@@ -285,11 +356,46 @@ describe("POST /api/recipes/import", () => {
     const body = await response.json();
 
     expect(response.status).toBe(200);
+    expect(body.extraction_status).toBe("success");
     expect(body.extraction_confidence).toBeGreaterThan(0);
 
     const calledTables = mockSupabase.from.mock.calls.map((call) => call[0]);
     expect(calledTables).toContain("recipe_ingredients");
     expect(calledTables).toContain("recipe_steps");
     expect(calledTables).toContain("recipe_ingredient_matches");
+    expect(calledTables).toContain("extraction_runs");
+
+    const recipesUpdateArgs = mockSupabase.from.mock.results.find(
+      (result) => result.type === "return" && result.value.update,
+    )?.value.update.mock.calls[0]?.[0];
+    expect(recipesUpdateArgs.extraction_notes).toContain("llm_result=success");
+  });
+
+  it("falls back to rule extraction when LLM payload validation fails", async () => {
+    parseYouTubeVideoIdMock.mockReturnValue("WLfTFCKqANA");
+    fetchYouTubeTranscriptMock.mockResolvedValue("テキスト");
+    fetchYouTubeMetadataMock.mockResolvedValue({
+      title: "Sample",
+      description: "材料\n鶏むね肉 200g",
+      channelTitle: "Channel",
+      thumbnailUrl: "https://example.com/thumb.jpg",
+    });
+    structureRecipeWithLlmMock.mockRejectedValue(
+      new LlmStructureError("invalid", "invalid_payload"),
+    );
+
+    const mockSupabase = createMockSupabase({});
+    createSupabaseServiceClientMock.mockReturnValue(mockSupabase);
+
+    const response = await POST(
+      createRequest({ url: "https://www.youtube.com/watch?v=WLfTFCKqANA" }) as never,
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(body.extraction_status).toBe("partial");
+
+    const calledTables = mockSupabase.from.mock.calls.map((call) => call[0]);
+    expect(calledTables).toContain("extraction_runs");
   });
 });
