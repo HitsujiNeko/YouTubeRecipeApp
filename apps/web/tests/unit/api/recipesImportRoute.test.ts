@@ -365,9 +365,9 @@ describe("POST /api/recipes/import", () => {
     expect(calledTables).toContain("recipe_ingredient_matches");
     expect(calledTables).toContain("extraction_runs");
 
-    const recipesUpdateArgs = mockSupabase.from
-      .mock.results.find((result) => result.type === "return" && result.value.update)
-      ?.value.update.mock.calls[0]?.[0];
+    const recipesUpdateArgs = mockSupabase.from.mock.results.find(
+      (result) => result.type === "return" && result.value.update,
+    )?.value.update.mock.calls[0]?.[0];
     expect(recipesUpdateArgs.extraction_notes).toContain("llm_result=success");
   });
 

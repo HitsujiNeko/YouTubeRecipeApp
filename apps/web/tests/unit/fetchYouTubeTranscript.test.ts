@@ -24,19 +24,21 @@ function textResponse(body: string, status = 200, contentType = "text/plain"): R
 
 describe("fetchYouTubeTranscript", () => {
   it("parses transcript from vtt", async () => {
-    const fetchFn = vi.fn<typeof fetch>().mockResolvedValue(
-      textResponse(
-        [
-          "WEBVTT",
-          "",
-          "00:00.000 --> 00:01.000",
-          "なすを切る",
-          "",
-          "00:01.000 --> 00:02.000",
-          "油で焼く",
-        ].join("\n"),
-      ),
-    );
+    const fetchFn = vi
+      .fn<typeof fetch>()
+      .mockResolvedValue(
+        textResponse(
+          [
+            "WEBVTT",
+            "",
+            "00:00.000 --> 00:01.000",
+            "なすを切る",
+            "",
+            "00:01.000 --> 00:02.000",
+            "油で焼く",
+          ].join("\n"),
+        ),
+      );
 
     const result = await fetchYouTubeTranscript("nMEzehxzBWU", "ja", {
       fetchFn,

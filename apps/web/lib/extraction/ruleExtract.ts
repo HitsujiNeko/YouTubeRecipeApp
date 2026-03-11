@@ -5,14 +5,18 @@ const STEP_HEADING_PATTERN = /(作り方|手順|instructions?|steps?|method)/i;
 const URL_PATTERN = /^https?:\/\//i;
 const QUANTITY_PATTERN =
   /(\d+(?:\.\d+)?\s*(?:g|kg|ml|cc|個|本|枚)|大さじ\s*\d+(?:\.\d+)?|小さじ\s*\d+(?:\.\d+)?|適量|少々)/i;
-const COOKING_VERB_PATTERN = /完成|炒め|焼き|煮|茹で|混ぜ|入れ|つける|切る|置く|加熱|揉み|下味|絞っ|沸か|注ぎ|serve|mix|cook/i;
+const COOKING_VERB_PATTERN =
+  /完成|炒め|焼き|煮|茹で|混ぜ|入れ|つける|切る|置く|加熱|揉み|下味|絞っ|沸か|注ぎ|serve|mix|cook/i;
 
 function stripBulletPrefix(line: string): string {
   return line.replace(/^[\s\-・●○■□◆◇▶▷►]+/, "").trim();
 }
 
 function normalizeIngredientName(value: string): string {
-  return value.replace(/[…・:：]+$/g, "").replace(/^★+/, "").trim();
+  return value
+    .replace(/[…・:：]+$/g, "")
+    .replace(/^★+/, "")
+    .trim();
 }
 
 function isClearlyNotIngredientLine(line: string): boolean {
@@ -183,7 +187,10 @@ export function extractRecipeByRules(description: string | null): {
 
     if (mode === "ingredients") {
       const stepsInIngredientMode = parseStep(line);
-      if (stepsInIngredientMode.length > 0 && (/、|。/.test(line) || COOKING_VERB_PATTERN.test(line))) {
+      if (
+        stepsInIngredientMode.length > 0 &&
+        (/、|。/.test(line) || COOKING_VERB_PATTERN.test(line))
+      ) {
         steps.push(...stepsInIngredientMode);
         continue;
       }

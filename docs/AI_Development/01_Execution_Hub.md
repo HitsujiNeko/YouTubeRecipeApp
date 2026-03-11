@@ -42,7 +42,7 @@
 5. Queueを更新し、PR作成時に `done` にする。
 
 ## 4. docs-only変更時
-- `docs/**` のみ変更時は lint/typecheck/test は任意。
+- `docs/` 配下のみ変更時は lint/typecheck/test は任意。
 - ただし最低限、以下の整合確認は必須:
   - Queue
   - Delivery Plan

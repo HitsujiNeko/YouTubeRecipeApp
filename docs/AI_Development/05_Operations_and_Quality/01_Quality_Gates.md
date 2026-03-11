@@ -13,7 +13,7 @@
 - 目視確認を未実施でPRを作成する場合は、理由とフォローアップ日程を明記すること。
 
 ## docs-only変更
-- `docs/**` のみ変更時は lint/typecheck/test を任意とする。
+- `docs/` 配下のみ変更時は lint/typecheck/test を任意とする。
 - ただし Queue/Delivery/Sync Matrix の整合確認は必須。
 - docs参照整合チェック（リンク先実在確認）は必須。
 
