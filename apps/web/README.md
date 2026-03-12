@@ -16,6 +16,18 @@ npm install
 cp .env.example .env.local
 ```
 
+Required environment variables:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `YOUTUBE_DATA_API_KEY`
+- `LLM_PROVIDER` (`gemini` or `openai`, default: `gemini`)
+- `GEMINI_API_KEY` (required when `LLM_PROVIDER=gemini`)
+- `OPENAI_API_KEY` (required when `LLM_PROVIDER=openai`)
+- `LLM_GEMINI_MODEL` (optional, default: `gemini-2.0-flash-lite`)
+- `LLM_OPENAI_MODEL` (optional, default: `gpt-4o-mini`)
+
 3. Run development server
 
 ```bash

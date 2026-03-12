@@ -235,17 +235,23 @@ export async function POST(req: NextRequest) {
     let llmResult: LlmResult = "not_attempted";
     let llmRunStatus: "success" | "failed" | null = null;
     let llmRunError: string | null = null;
+    let llmModelName: string | null = null;
 
     if (sourceMode !== "none") {
       const descriptionText = descriptionHasRecipe ? normalizeSourceText(metadata.description) : "";
       const transcriptText = sourceMode === "description" ? "" : normalizeSourceText(transcript);
 
       try {
-        extracted = await structureRecipeWithLlm({
+        const llmOutput = await structureRecipeWithLlm({
           title: metadata.title,
           descriptionText,
           transcriptText,
         });
+        extracted = {
+          ingredients: llmOutput.ingredients,
+          steps: llmOutput.steps,
+        };
+        llmModelName = llmOutput.metadata?.modelName ?? null;
         llmResult = "success";
         llmRunStatus = "success";
         extractionStatus = decideExtractionStatus({
@@ -289,7 +295,7 @@ export async function POST(req: NextRequest) {
           recipe_id: recipeResult.data.id,
           source_id: videoSourceResult.data.id,
           extractor_name: "llm_structure",
-          model_name: "gpt-4o-mini",
+          model_name: llmModelName ?? "unknown",
           status: llmRunStatus,
           error_message: llmRunError ? llmRunError.slice(0, 500) : null,
         });
