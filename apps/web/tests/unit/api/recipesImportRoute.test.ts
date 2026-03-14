@@ -375,9 +375,8 @@ describe("POST /api/recipes/import", () => {
     );
     const extractionRunsInsertArgs =
       extractionRunsCallIndex >= 0
-        ? (mockSupabase.from.mock.results[extractionRunsCallIndex]?.value.insert.mock.calls[0]?.[0] as
-            | { status?: string; model_name?: string }
-            | undefined)
+        ? (mockSupabase.from.mock.results[extractionRunsCallIndex]?.value.insert.mock
+            .calls[0]?.[0] as { status?: string; model_name?: string } | undefined)
         : undefined;
 
     expect(extractionRunsInsertArgs?.status).toBe("success");
