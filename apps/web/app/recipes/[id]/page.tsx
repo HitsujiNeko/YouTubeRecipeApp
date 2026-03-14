@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+
 import { IngredientList } from "@/components/IngredientList";
 import { NutritionSummaryCard } from "@/components/NutritionSummaryCard";
 import { StepList } from "@/components/StepList";

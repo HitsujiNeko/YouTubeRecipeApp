@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { hasRecipeSignalsInDescription, selectSourceMode } from "@/lib/extraction/evaluateSource";
 
 describe("hasRecipeSignalsInDescription", () => {

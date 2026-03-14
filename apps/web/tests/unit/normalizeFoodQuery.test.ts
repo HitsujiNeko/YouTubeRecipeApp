@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { normalizeFoodQuery } from "@/lib/nutrition/normalizeFoodQuery";
 
 describe("normalizeFoodQuery", () => {

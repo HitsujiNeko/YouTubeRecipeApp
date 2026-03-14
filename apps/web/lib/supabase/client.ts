@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+
 import { getClientEnv } from "@/lib/env";
 
 const env = getClientEnv();

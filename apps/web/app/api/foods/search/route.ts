@@ -1,6 +1,9 @@
 import crypto from "node:crypto";
+
 import { NextRequest, NextResponse } from "next/server";
+
 import { z } from "zod";
+
 import { normalizeFoodQuery } from "@/lib/nutrition/normalizeFoodQuery";
 import { createSupabaseServiceClient } from "@/lib/supabase/server";
 import type { CommonApiErrorResponse, FoodSearchResponse } from "@/types/api";

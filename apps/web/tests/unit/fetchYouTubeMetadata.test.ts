@@ -1,4 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
+
 import { fetchYouTubeMetadata } from "@/lib/youtube/fetchYouTubeMetadata";
 
 function createJsonResponse(body: unknown, status = 200): Response {
