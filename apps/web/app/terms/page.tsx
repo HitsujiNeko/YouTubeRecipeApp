@@ -13,7 +13,8 @@ export default function TermsPage() {
 
         <section className="mt-5 space-y-4 rounded-xl border border-slate-200 bg-white p-6 text-sm leading-7 text-slate-700">
           <p>
-            本サービスは、YouTube URLから材料・手順・栄養サマリーの表示を補助するためのツールです。内容は参考情報であり、正確性・完全性を保証しません。
+            本サービスは、YouTube
+            URLから材料・手順・栄養サマリーの表示を補助するためのツールです。内容は参考情報であり、正確性・完全性を保証しません。
           </p>
 
           <div>

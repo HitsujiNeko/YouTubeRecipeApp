@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+
 import { SiteLegalFooter } from "@/components/SiteLegalFooter";
 
 import type { Metadata } from "next";
