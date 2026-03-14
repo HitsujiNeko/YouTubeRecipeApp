@@ -1,7 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { use, useEffect, useMemo, useState } from "react";
+
+import Link from "next/link";
+
 import { getMockRecipeDetail } from "@/lib/recipes/mockRecipeDetail";
 
 type CookModePageProps = {

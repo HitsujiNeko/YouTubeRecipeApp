@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { computeRecipeNutrition } from "@/lib/nutrition/computeRecipeNutrition";
 
 describe("computeRecipeNutrition", () => {

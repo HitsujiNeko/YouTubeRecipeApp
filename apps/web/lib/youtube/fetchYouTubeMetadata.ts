@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 import { getServerEnv } from "@/lib/env";
 
 const YOUTUBE_API_BASE_URL = "https://www.googleapis.com/youtube/v3/videos";

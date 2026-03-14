@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+
 import { computeExtractionConfidence, decideExtractionStatus } from "@/lib/extraction/status";
 
 describe("decideExtractionStatus", () => {
