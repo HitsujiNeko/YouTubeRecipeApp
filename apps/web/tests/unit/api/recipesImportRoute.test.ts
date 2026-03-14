@@ -168,7 +168,11 @@ describe("POST /api/recipes/import", () => {
   it("returns 200 with recipe_id for valid URL", async () => {
     parseYouTubeVideoIdMock.mockReturnValue("WLfTFCKqANA");
     fetchYouTubeTranscriptMock.mockResolvedValue(null);
-    structureRecipeWithLlmMock.mockResolvedValue({ ingredients: [], steps: [] });
+    structureRecipeWithLlmMock.mockResolvedValue({
+      ingredients: [],
+      steps: [],
+      metadata: { provider: "gemini", modelName: "gemini-2.0-flash-lite" },
+    });
     fetchYouTubeMetadataMock.mockResolvedValue({
       title: "Sample",
       description: null,
@@ -333,6 +337,7 @@ describe("POST /api/recipes/import", () => {
           confidence: 0.75,
         },
       ],
+      metadata: { provider: "gemini", modelName: "gemini-2.0-flash-lite" },
     });
 
     const mockSupabase = createMockSupabase({
@@ -364,6 +369,18 @@ describe("POST /api/recipes/import", () => {
     expect(calledTables).toContain("recipe_steps");
     expect(calledTables).toContain("recipe_ingredient_matches");
     expect(calledTables).toContain("extraction_runs");
+
+    const extractionRunsCallIndex = mockSupabase.from.mock.calls.findIndex(
+      (call) => call[0] === "extraction_runs",
+    );
+    const extractionRunsInsertArgs =
+      extractionRunsCallIndex >= 0
+        ? (mockSupabase.from.mock.results[extractionRunsCallIndex]?.value.insert.mock
+            .calls[0]?.[0] as { status?: string; model_name?: string } | undefined)
+        : undefined;
+
+    expect(extractionRunsInsertArgs?.status).toBe("success");
+    expect(extractionRunsInsertArgs?.model_name).toBe("gemini-2.0-flash-lite");
 
     const recipesUpdateArgs = mockSupabase.from.mock.results.find(
       (result) => result.type === "return" && result.value.update,

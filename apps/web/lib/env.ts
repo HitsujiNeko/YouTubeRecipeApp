@@ -9,7 +9,11 @@ const clientEnvSchema = z.object({
 
 const serverEnvSchema = clientEnvSchema.extend({
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
-  OPENAI_API_KEY: z.string().min(1),
+  OPENAI_API_KEY: z.string().min(1).optional(),
+  GEMINI_API_KEY: z.string().min(1).optional(),
+  LLM_PROVIDER: z.enum(["gemini", "openai"]).default("gemini"),
+  LLM_OPENAI_MODEL: z.string().min(1).default("gpt-4o-mini"),
+  LLM_GEMINI_MODEL: z.string().min(1).default("gemini-2.0-flash-lite"),
   YOUTUBE_DATA_API_KEY: z.string().min(1),
 });
 
